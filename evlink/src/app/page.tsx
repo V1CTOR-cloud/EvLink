@@ -1,26 +1,15 @@
-import { createClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+"use client";
 
-export default async function Home() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+import { useAuth } from "@/app/hooks/useAuth";
 
-  const { data, error } = await supabase.auth.getUser();
+export default function Home() {
+  const { user } = useAuth();
 
   return (
     <main>
       <h1>EvLink</h1>
 
-      <pre>
-        {JSON.stringify(
-          {
-            user: data.user,
-            error: error?.message,
-          },
-          null,
-          2,
-        )}
-      </pre>
+      <p>Usuario: {user ? user.email : "No autenticado"}</p>
     </main>
   );
 }
