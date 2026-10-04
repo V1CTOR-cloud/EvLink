@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useAuth } from "@/app/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {

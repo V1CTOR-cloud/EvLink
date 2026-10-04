@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 
-import { AuthContext } from "@/app/contexts/AuthContext";
+import { AuthContext } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthProviderProps = {
