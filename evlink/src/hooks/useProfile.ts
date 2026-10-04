@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { getProfile } from "@/services/profile";
-
-type Profile = {
-    id: string;
-    full_name: string;
-    role: "driver" | "admin";
-};
+import type { Profile } from "@/types";
 
 export function useProfile(userId?: string) {
     const [profile, setProfile] = useState<Profile | null>(null);

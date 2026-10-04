@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
+import { Profile } from "@/types";
 
-export async function getProfile(userId: string) {
+export async function getProfile(userId: string): Promise<Profile> {
     const supabase = createClient();
 
     const { data, error } = await supabase
