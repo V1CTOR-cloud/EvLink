@@ -1,47 +1,29 @@
-import { MapPin } from "lucide-react";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-
-import type { ChargingStation } from "@/types";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ChargingStationWithConnectors } from "@/services/charging-stations";
+import { ConnectorItem } from "./ConnectorItem";
 
 type StationCardProps = {
-  station: ChargingStation;
+  station: ChargingStationWithConnectors;
 };
 
 export function StationCard({ station }: StationCardProps) {
-  const statusLabels = {
-    available: "Disponible",
-    occupied: "Ocupada",
-    offline: "Fuera de servicio",
-    maintenance: "Mantenimiento",
-  } as const;
-
-  const statusVariants = {
-    available: "default",
-    occupied: "secondary",
-    offline: "destructive",
-    maintenance: "outline",
-  } as const;
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>{station.name}</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-2">
-        <div className="flex items-center gap-2">
-          <MapPin className="size-4" />
-          <span>
-            {station.address}, {station.city}
-          </span>
-        </div>
-
-        <Badge variant={statusVariants[station.status]}>
-          {statusLabels[station.status]}
-        </Badge>
-      </CardContent>
+      <div className="space-y-3">
+        {station.connectors.length > 0 ? (
+          station.connectors.map((connector) => (
+            <ConnectorItem key={connector.id} connector={connector} />
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No hay conectores disponibles.
+          </p>
+        )}
+      </div>
     </Card>
   );
 }
