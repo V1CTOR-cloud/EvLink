@@ -10,7 +10,6 @@ export function useProfile(userId?: string) {
 
     useEffect(() => {
         if (!userId) {
-            setProfile(null);
             return;
         }
 

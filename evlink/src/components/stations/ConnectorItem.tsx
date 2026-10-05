@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { Connector } from "@/types";
+import { StartChargingButton } from "./StartChargingButton";
 
 type ConnectorItemProps = {
   connector: Connector;
@@ -31,6 +32,11 @@ export function ConnectorItem({ connector }: ConnectorItemProps) {
       </div>
 
       <Badge variant="outline">{connectorStatusLabels[connector.status]}</Badge>
+      <StartChargingButton
+        connectorId={connector.id}
+        pricePerKwh={connector.price_per_kwh}
+        connectorStatus={connector.status}
+      />
     </div>
   );
 }

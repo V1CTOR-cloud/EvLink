@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChargingStationWithConnectors } from "@/services/charging-stations";
 import { ConnectorItem } from "./ConnectorItem";
 
@@ -13,7 +13,7 @@ export function StationCard({ station }: StationCardProps) {
         <CardTitle>{station.name}</CardTitle>
       </CardHeader>
 
-      <div className="space-y-3">
+      <CardContent className="space-y-3">
         {station.connectors.length > 0 ? (
           station.connectors.map((connector) => (
             <ConnectorItem key={connector.id} connector={connector} />
@@ -23,7 +23,7 @@ export function StationCard({ station }: StationCardProps) {
             No hay conectores disponibles.
           </p>
         )}
-      </div>
+      </CardContent>
     </Card>
   );
 }
