@@ -5,54 +5,59 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
 export async function updateSession(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({
-        request,
-    });
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
 
-    const supabase = createServerClient(
-        supabaseUrl,
-        supabaseKey,
-        {
-            cookies: {
-                getAll() {
-                    return request.cookies.getAll();
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value }) => {
-                        request.cookies.set(name, value);
-                    });
-
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    });
-
-                    cookiesToSet.forEach(({ name, value, options }) => {
-                        supabaseResponse.cookies.set(name, value, options);
-                    });
-                },
-            },
+  const supabase = createServerClient(
+    supabaseUrl,
+    supabaseKey,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
         },
-    );
 
-    const { data } = await supabase.auth.getClaims();
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
 
-    const user = data?.claims?.sub;
+          supabaseResponse = NextResponse.next({
+            request,
+          });
 
-    const pathname = request.nextUrl.pathname;
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
 
-    if (!user && pathname !== "/login") {
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
+  const { data } = await supabase.auth.getClaims();
 
-        return NextResponse.redirect(url);
-    }
+  const user = data?.claims?.sub;
 
-    if (user && pathname === "/login") {
-        const url = request.nextUrl.clone();
-        url.pathname = "/";
+  const pathname = request.nextUrl.pathname;
 
-        return NextResponse.redirect(url);
-    }
+  const publicRoutes = ["/login", "/register"];
 
-    return supabaseResponse;
+  const isPublicRoute = publicRoutes.includes(pathname);
+
+  if (!user && !isPublicRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+
+    return NextResponse.redirect(url);
+  }
+
+  if (user && isPublicRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+
+    return NextResponse.redirect(url);
+  }
+
+  return supabaseResponse;
 }

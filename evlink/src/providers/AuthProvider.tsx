@@ -42,6 +42,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const register = async (
+    email: string,
+    password: string,
+    fullName: string,
+  ) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data.user) {
+      throw new Error("No se pudo crear el usuario");
+    }
+
+    if (!data.session) {
+      throw new Error(
+        "Cuenta creada. Revisa tu correo para confirmar la cuenta.",
+      );
+    }
+
+    setUser(data.user);
+  };
+
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
 
@@ -51,7 +83,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

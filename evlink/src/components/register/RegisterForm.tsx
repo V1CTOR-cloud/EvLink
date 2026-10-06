@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -16,39 +16,38 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import { loginSchema, type LoginFormData } from "@/schemas/auth";
+import { registerSchema, type RegisterFormData } from "@/schemas/auth";
 import Link from "next/link";
 
-type LoginFormProps = Omit<ComponentProps<"form">, "onSubmit"> & {
-  onSubmit: (data: LoginFormData) => Promise<void>;
+type RegisterFormProps = Omit<ComponentProps<"form">, "onSubmit"> & {
+  onSubmit: (data: RegisterFormData) => Promise<void>;
 };
 
-export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
+export function RegisterForm({
+  className,
+  onSubmit,
+  ...props
+}: RegisterFormProps) {
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     mode: "onBlur",
     defaultValues: {
+      fullName: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const handleValidationError = (
-    errors: Record<
-      string,
-      {
-        message?: string;
-      }
-    >,
-  ) => {
+  const handleValidationError = (errors: FieldErrors<RegisterFormData>) => {
     const firstError = Object.values(errors)[0];
 
     if (firstError?.message) {
-      toast.error(firstError.message);
+      toast.error(String(firstError.message));
     }
   };
 
@@ -59,15 +58,27 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
       {...props}
     >
       <FieldGroup>
-        <div className="flex flex-col gap-1 text-center">
+        <div className="flex flex-col gap-2 text-center">
           <h1 className="text-3xl font-semibold tracking-tight">
-            Inicia sesión
+            Crear cuenta
           </h1>
 
           <p className="text-sm text-muted-foreground">
-            Accede a tu cuenta de EvLink
+            Crea tu cuenta de EvLink
           </p>
         </div>
+
+        <Field>
+          <FieldLabel htmlFor="fullName">Nombre completo</FieldLabel>
+
+          <Input
+            id="fullName"
+            type="text"
+            placeholder="Víctor García"
+            autoComplete="name"
+            {...register("fullName")}
+          />
+        </Field>
 
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -88,19 +99,34 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
             id="password"
             type="password"
             placeholder="••••••••"
-            autoComplete="current-password"
+            autoComplete="new-password"
             {...register("password")}
           />
         </Field>
 
         <Field>
+          <FieldLabel htmlFor="confirmPassword">
+            Confirmar contraseña
+          </FieldLabel>
+
+          <Input
+            id="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="new-password"
+            {...register("confirmPassword")}
+          />
+        </Field>
+
+        <Field>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+            {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
         </Field>
+
         <Field>
           <FieldDescription className="text-center">
-            No tienes una cuenta? <Link href="/register">Registro</Link>
+            Ya tienes una cuenta? <Link href="/login">Login</Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
