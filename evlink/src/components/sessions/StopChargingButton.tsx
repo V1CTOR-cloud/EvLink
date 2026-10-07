@@ -32,7 +32,6 @@ export function StopChargingButton({
       const session = await finishCharging(sessionId, energy);
 
       onSessionUpdated(session);
-
       toast.success("Carga finalizada correctamente");
     } catch (error) {
       toast.error(

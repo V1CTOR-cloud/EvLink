@@ -1,15 +1,44 @@
-"use client";
+import { ActiveSessionCard } from "@/components/dashboard/ActiveSessionCard";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardStations } from "@/components/dashboard/DashboardStations";
+import { createClient } from "@/lib/supabase/server";
+import { getDashboardStats } from "@/services/dashboard";
 
-import { useAuth } from "@/hooks/useAuth";
+export default async function DashboardPage() {
+  const supabase = await createClient();
 
-export default function Home() {
-  const { user } = useAuth();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const stats = await getDashboardStats(supabase, user.id);
+
+  const name =
+    user.user_metadata.full_name ??
+    user.email ??
+    "Usuario";
 
   return (
-    <main>
-      <h1>EvLink</h1>
+    <main className="p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <DashboardHeader
+          name={name}
+          availableStations={stats.availableStations}
+        />
 
-      <p>Usuario: {user ? user.email : "No autenticado"}</p>
+        <DashboardStats stats={stats} />
+
+        {stats.activeSession && (
+          <ActiveSessionCard session={stats.activeSession} />
+        )}
+
+        <DashboardStations stations={stats.stations} />
+      </div>
     </main>
   );
 }

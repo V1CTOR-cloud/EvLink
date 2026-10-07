@@ -8,13 +8,11 @@ import type { Profile } from "@/types";
 
 export function useProfile(userId?: string) {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(userId));
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!userId) {
-      setProfile(null);
-      setLoading(false);
       return;
     }
 
@@ -45,7 +43,7 @@ export function useProfile(userId?: string) {
       }
     };
 
-    loadProfile();
+    void loadProfile();
 
     return () => {
       cancelled = true;

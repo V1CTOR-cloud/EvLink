@@ -53,3 +53,43 @@ export type ChargingSession = {
         };
     };
 };
+
+export type DashboardStats = {
+    availableStations: number;
+    activeSessions: number;
+    totalEnergy: number;
+    totalSpent: number;
+    activeSession: DashboardActiveSession | null;
+    stations: DashboardStation[];
+};
+
+export type DashboardActiveSession = {
+    id: string;
+    status: "pending" | "charging";
+    started_at: string;
+    energy_kwh: number;
+    total_amount: number;
+    price_per_kwh: number;
+    connector: {
+        connector_type: "type_2" | "ccs2" | "chademo";
+        power_kw: number;
+        station: {
+            name: string;
+            address: string;
+            city: string;
+        };
+    };
+};
+
+export type DashboardStation = {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    status: "available";
+    connectors: {
+        connector_type: "type_2" | "ccs2" | "chademo";
+        power_kw: number;
+        status: "available" | "occupied" | "offline";
+    }[];
+};
