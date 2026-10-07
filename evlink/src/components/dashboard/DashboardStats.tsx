@@ -15,7 +15,7 @@ const statsConfig = [
     suffix: "",
   },
   {
-    key: "activeSessions",
+    key: "activeSessionsCount",
     label: "Sesiones activas",
     icon: Plug,
     format: (value: number) => value.toString(),

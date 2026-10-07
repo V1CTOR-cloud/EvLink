@@ -2,6 +2,28 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { DashboardStats } from "@/types";
 
+type ActiveSessionStation = {
+    name: string;
+    address: string;
+    city: string;
+};
+
+type ActiveSessionConnector = {
+    connector_type: "type_2" | "ccs2" | "chademo";
+    power_kw: number;
+    station: ActiveSessionStation | ActiveSessionStation[];
+};
+
+type ActiveSessionRow = {
+    id: string;
+    status: "pending" | "charging";
+    started_at: string;
+    energy_kwh: number;
+    total_amount: number;
+    price_per_kwh: number;
+    connector: ActiveSessionConnector | ActiveSessionConnector[];
+};
+
 export async function getDashboardStats(
     supabase: SupabaseClient,
     userId: string,
@@ -10,7 +32,7 @@ export async function getDashboardStats(
         availableStationsResult,
         activeSessionsResult,
         completedSessionsResult,
-        activeSessionResult,
+        activeSessionsDataResult,
         stationsResult,
     ] = await Promise.all([
         supabase
@@ -33,41 +55,40 @@ export async function getDashboardStats(
         supabase
             .from("charging_sessions")
             .select(`
-            id,
-            status,
-            started_at,
-            energy_kwh,
-            total_amount,
-            price_per_kwh,
-            connector:connectors (
-                connector_type,
-                power_kw,
-                station:charging_stations (
-                    name,
-                    address,
-                    city
+                id,
+                status,
+                started_at,
+                energy_kwh,
+                total_amount,
+                price_per_kwh,
+                connector:connectors!inner (
+                    connector_type,
+                    power_kw,
+                    station:charging_stations!inner (
+                        name,
+                        address,
+                        city
+                    )
                 )
-            )
-        `)
+            `)
             .eq("user_id", userId)
             .in("status", ["pending", "charging"])
-            .limit(1)
-            .maybeSingle(),
+            .order("started_at", { ascending: false }),
 
         supabase
             .from("charging_stations")
             .select(`
-            id,
-            name,
-            address,
-            city,
-            status,
-            connectors (
-                connector_type,
-                power_kw,
-                status
-            )
-        `)
+                id,
+                name,
+                address,
+                city,
+                status,
+                connectors (
+                    connector_type,
+                    power_kw,
+                    status
+                )
+            `)
             .eq("status", "available")
             .order("name")
             .limit(3),
@@ -85,26 +106,47 @@ export async function getDashboardStats(
         throw completedSessionsResult.error;
     }
 
-    if (activeSessionResult.error) {
-        throw activeSessionResult.error;
+    if (activeSessionsDataResult.error) {
+        throw activeSessionsDataResult.error;
     }
 
-    let activeSession: DashboardStats["activeSession"] = null;
+    if (stationsResult.error) {
+        throw stationsResult.error;
+    }
 
-    if (activeSessionResult.data) {
-        const connector = activeSessionResult.data.connector[0];
+    const activeSessionRows =
+        (activeSessionsDataResult.data ?? []) as ActiveSessionRow[];
 
-        if (connector) {
-            const station = connector.station[0];
+    const activeSessions: DashboardStats["activeSessions"] =
+        activeSessionRows.flatMap((session) => {
+            const rawConnector = session.connector;
 
-            if (station) {
-                activeSession = {
-                    id: activeSessionResult.data.id,
-                    status: activeSessionResult.data.status,
-                    started_at: activeSessionResult.data.started_at,
-                    energy_kwh: Number(activeSessionResult.data.energy_kwh),
-                    total_amount: Number(activeSessionResult.data.total_amount),
-                    price_per_kwh: Number(activeSessionResult.data.price_per_kwh),
+            const connector = Array.isArray(rawConnector)
+                ? rawConnector[0]
+                : rawConnector;
+
+            if (!connector) {
+                return [];
+            }
+
+            const rawStation = connector.station;
+
+            const station = Array.isArray(rawStation)
+                ? rawStation[0]
+                : rawStation;
+
+            if (!station) {
+                return [];
+            }
+
+            return [
+                {
+                    id: session.id,
+                    status: session.status,
+                    started_at: session.started_at,
+                    energy_kwh: Number(session.energy_kwh),
+                    total_amount: Number(session.total_amount),
+                    price_per_kwh: Number(session.price_per_kwh),
                     connector: {
                         connector_type: connector.connector_type,
                         power_kw: Number(connector.power_kw),
@@ -114,14 +156,9 @@ export async function getDashboardStats(
                             city: station.city,
                         },
                     },
-                };
-            }
-        }
-    }
-
-    if (stationsResult.error) {
-        throw stationsResult.error;
-    }
+                },
+            ];
+        });
 
     const totalEnergy = (completedSessionsResult.data ?? []).reduce(
         (total, session) => total + Number(session.energy_kwh ?? 0),
@@ -135,10 +172,10 @@ export async function getDashboardStats(
 
     return {
         availableStations: availableStationsResult.count ?? 0,
-        activeSessions: activeSessionsResult.count ?? 0,
+        activeSessionsCount: activeSessionsResult.count ?? 0,
         totalEnergy,
         totalSpent,
-        activeSession,
+        activeSessions,
         stations: stationsResult.data ?? [],
     };
 }

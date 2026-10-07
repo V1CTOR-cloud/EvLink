@@ -55,12 +55,12 @@ export type ChargingSession = {
 };
 
 export type DashboardStats = {
-    availableStations: number;
-    activeSessions: number;
-    totalEnergy: number;
-    totalSpent: number;
-    activeSession: DashboardActiveSession | null;
-    stations: DashboardStation[];
+  availableStations: number;
+  activeSessionsCount: number;
+  totalEnergy: number;
+  totalSpent: number;
+  activeSessions: DashboardActiveSession[];
+  stations: DashboardStation[];
 };
 
 export type DashboardActiveSession = {

@@ -4,6 +4,10 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardStations } from "@/components/dashboard/DashboardStations";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardStats } from "@/services/dashboard";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -16,12 +20,17 @@ export default async function DashboardPage() {
     return null;
   }
 
-  const stats = await getDashboardStats(supabase, user.id);
+  const [stats, profileResult] = await Promise.all([
+    getDashboardStats(supabase, user.id),
 
-  const name =
-    user.user_metadata.full_name ??
-    user.email ??
-    "Usuario";
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
+
+  const name = profileResult.data?.full_name || user.email || "Usuario";
 
   return (
     <main className="p-6 lg:p-8">
@@ -33,8 +42,34 @@ export default async function DashboardPage() {
 
         <DashboardStats stats={stats} />
 
-        {stats.activeSession && (
-          <ActiveSessionCard session={stats.activeSession} />
+        {stats.activeSessions.length > 0 && (
+          <section className="mt-6">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold">
+                  Sesiones activas
+                </h2>
+
+                <p className="text-xs text-muted-foreground">
+                  Tus sesiones de carga actuales
+                </p>
+              </div>
+
+              <Link
+                href="/sessions"
+                className="group inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Ver todas
+                <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              {stats.activeSessions.map((session) => (
+                <ActiveSessionCard key={session.id} session={session} />
+              ))}
+            </div>
+          </section>
         )}
 
         <DashboardStations stations={stats.stations} />
