@@ -1,5 +1,8 @@
+import { BatteryCharging, CalendarDays, MapPin } from "lucide-react";
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import type { ChargingSession } from "@/types";
 import { formatDate } from "@/lib/format-date";
@@ -8,9 +11,7 @@ import {
   sessionStatusLabels,
   sessionStatusVariants,
 } from "@/lib/session-utils";
-import { SessionLocation } from "./SessionLocation";
 import { StopChargingButton } from "./StopChargingButton";
-import Link from "next/link";
 
 type SessionCardProps = {
   session: ChargingSession;
@@ -18,65 +19,88 @@ type SessionCardProps = {
 };
 
 export function SessionCard({ session, onSessionUpdated }: SessionCardProps) {
-  const formattedDate = formatDate(session.created_at);
-  const formattedStart = formatDate(session.started_at);
-  const formattedEnd = formatDate(session.ended_at);
   const isActive = isSessionActive(session.status);
 
+  const formattedDate = formatDate(session.created_at);
+
   return (
-    <Link href={`/sessions/${session.id}`} className="block">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">
-            {session.connector.station.name}
-          </CardTitle>
+    <Card className="overflow-hidden transition-colors hover:border-primary/40">
+      <Link href={`/sessions/${session.id}`} className="block">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="truncate text-sm font-semibold">
+                {session.connector.station.name}
+              </h3>
 
-          <Badge variant={sessionStatusVariants[session.status]}>
-            {sessionStatusLabels[session.status]}
-          </Badge>
-        </CardHeader>
+              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="size-3 shrink-0" />
 
-        <CardContent className="space-y-2">
-          <SessionLocation connector={session.connector} />
+                <span className="truncate">
+                  {session.connector.station.address},{" "}
+                  {session.connector.station.city}
+                </span>
+              </div>
+            </div>
 
-          <p className="text-sm text-muted-foreground">
-            Inicio: {formattedStart}
-          </p>
+            <Badge
+              variant={sessionStatusVariants[session.status]}
+              className="shrink-0 px-2 py-0.5 text-[10px]"
+            >
+              {sessionStatusLabels[session.status]}
+            </Badge>
+          </div>
 
-          <p className="text-sm text-muted-foreground">
-            Fin: {formattedEnd ?? "En curso"}
-          </p>
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+            <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <BatteryCharging className="size-3.5 shrink-0" />
 
-          <p className="text-sm text-muted-foreground">
-            Fecha: {formattedDate}
-          </p>
+              <span>{session.connector.connector_type.toUpperCase()}</span>
 
-          {isActive ? (
-            <>
-              <p className="text-sm text-muted-foreground">Sesión en curso</p>
+              <span>·</span>
 
-              <StopChargingButton
-                sessionId={session.id}
-                onSessionUpdated={onSessionUpdated}
-              />
-            </>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground">
-                Energía: {session.energy_kwh} kWh
-              </p>
+              <span>{session.connector.power_kw} kW</span>
+            </div>
 
-              <p className="text-sm text-muted-foreground">
-                Precio: {session.price_per_kwh.toFixed(2)} €/kWh
-              </p>
+            <div className="flex items-center gap-4 text-right">
+              <div>
+                <p className="text-[10px] text-muted-foreground">Energía</p>
 
-              <p className="font-medium">
-                Total: {session.total_amount.toFixed(2)} €
-              </p>
-            </>
-          )}
+                <p className="text-sm font-semibold">
+                  {Number(session.energy_kwh).toFixed(1)} kWh
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] text-muted-foreground">Coste</p>
+
+                <p className="text-sm font-semibold">
+                  {session.total_amount === null
+                    ? "—"
+                    : `${Number(session.total_amount).toFixed(2)} €`}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <CalendarDays className="size-3" />
+
+            <span>
+              {isActive ? `Iniciada ${formattedDate}` : formattedDate}
+            </span>
+          </div>
         </CardContent>
-      </Card>
-    </Link>
+      </Link>
+
+      {isActive && (
+        <div className="border-t border-border px-4 py-3">
+          <StopChargingButton
+            sessionId={session.id}
+            onSessionUpdated={onSessionUpdated}
+          />
+        </div>
+      )}
+    </Card>
   );
 }
