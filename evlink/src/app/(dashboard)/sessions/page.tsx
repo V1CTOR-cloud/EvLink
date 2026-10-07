@@ -62,7 +62,7 @@ export default function SessionsPage() {
           ))}
         </div>
       ) : (
-        <SessionsTable sessions={sessions} onSessionUpdated={updateSession} />
+        <SessionsTable sessions={sessions} />
       )}
     </section>
   );

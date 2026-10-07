@@ -1,11 +1,12 @@
-import { Plug, CalendarDays, Edit, MapPin } from "lucide-react";
-import Link from "next/link";
+"use client";
+
+import { CalendarDays, Plug, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import type { ChargingSession } from "@/types";
 
 type SessionsTableProps = {
   sessions: ChargingSession[];
-  onSessionUpdated: (session: ChargingSession) => void;
 };
 
 const statusLabels: Record<ChargingSession["status"], string> = {
@@ -56,6 +57,8 @@ function formatAmount(amount: number | null) {
 }
 
 export function SessionsTable({ sessions }: SessionsTableProps) {
+  const router = useRouter();
+
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="overflow-x-auto">
@@ -85,10 +88,6 @@ export function SessionsTable({ sessions }: SessionsTableProps) {
               <th className="px-5 py-3.5 text-left text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Estado
               </th>
-
-              <th className="px-5 py-3.5 text-right text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Acción
-              </th>
             </tr>
           </thead>
 
@@ -99,7 +98,16 @@ export function SessionsTable({ sessions }: SessionsTableProps) {
               return (
                 <tr
                   key={session.id}
-                  className="group transition-colors hover:bg-muted/20"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => router.push(`/sessions/${session.id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      router.push(`/sessions/${session.id}`);
+                    }
+                  }}
+                  className="group cursor-pointer transition-colors hover:bg-muted/20 focus-visible:bg-muted/20 focus-visible:outline-none"
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
@@ -180,16 +188,6 @@ export function SessionsTable({ sessions }: SessionsTableProps) {
 
                       {statusLabels[session.status]}
                     </span>
-                  </td>
-
-                  <td className="px-5 py-4 text-right">
-                    <Link
-                      href="/sessions"
-                      className="inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100"
-                    >
-                      <Edit className="size-3.5" />
-                      Editar
-                    </Link>
                   </td>
                 </tr>
               );
