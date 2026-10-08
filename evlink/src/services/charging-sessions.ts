@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ChargingSession,
   ChargingSessionDetail,
+  Payment,
 } from "@/types";
 
 export async function getChargingSessions(
@@ -90,10 +91,19 @@ export async function createChargingSession(
   return session;
 }
 
-export async function stopCharging(
+type FinishChargingResult = {
+  session: ChargingSession;
+  payment: Payment;
+};
+
+export async function finishCharging(
   supabase: SupabaseClient,
   sessionId: string,
 ): Promise<ChargingSession> {
+  /*
+   * Primero obtenemos los datos necesarios para
+   * simular temporalmente el consumo.
+   */
   const { data: session, error: sessionError } = await supabase
     .from("charging_sessions")
     .select(`
@@ -127,9 +137,16 @@ export async function stopCharging(
     : session.connector;
 
   if (!connector) {
-    throw new Error("El conector de la sesión no existe.");
+    throw new Error(
+      "El conector de la sesión no existe.",
+    );
   }
 
+  /*
+   * Simulación temporal del consumo.
+   *
+   * Más adelante esto vendrá del cargador/OCPP.
+   */
   const startedAt = new Date(session.started_at);
   const now = new Date();
 
@@ -142,8 +159,16 @@ export async function stopCharging(
     durationHours * connector.power_kw,
   );
 
+  /*
+   * Una única operación de dominio:
+   *
+   * - finaliza sesión
+   * - calcula importe
+   * - libera conector
+   * - crea payment
+   */
   const { data, error } = await supabase.rpc(
-    "stop_charging",
+    "finish_charging",
     {
       p_session_id: sessionId,
       p_energy_kwh: Number(energyKwh.toFixed(2)),
@@ -156,33 +181,7 @@ export async function stopCharging(
     );
   }
 
-  const {
-    data: updatedSession,
-    error: updatedSessionError,
-  } = await supabase
-    .from("charging_sessions")
-    .select(`
-      *,
-      connector:connectors (
-        id,
-        connector_type,
-        power_kw,
-        station:charging_stations (
-          id,
-          name,
-          address,
-          city
-        )
-      )
-    `)
-    .eq("id", data.id)
-    .single();
-
-  if (updatedSessionError) {
-    throw updatedSessionError;
-  }
-
-  return updatedSession;
+  return data as ChargingSession;
 }
 
 export async function getChargingSessionById(

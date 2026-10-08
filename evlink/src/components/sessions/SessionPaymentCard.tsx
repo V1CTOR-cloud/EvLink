@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 
 import type { ChargingSessionDetail } from "@/types";
+import { ProcessPaymentButton } from "./ProcessPaymentsButton";
 
 type SessionPaymentCardProps = {
   payment: ChargingSessionDetail["payment"];
@@ -39,13 +40,10 @@ function getStatusIcon(
   switch (status) {
     case "completed":
       return CheckCircle2;
-
     case "failed":
       return XCircle;
-
     case "refunded":
       return RotateCcw;
-
     case "pending":
       return CreditCard;
   }
@@ -138,6 +136,24 @@ export function SessionPaymentCard({
           </p>
         </div>
       </div>
+
+      {payment.status === "pending" && (
+        <div className="flex items-center justify-between gap-4 border-t border-border bg-muted/30 px-5 py-4">
+          <div>
+            <p className="text-sm font-medium">
+              Pago pendiente
+            </p>
+
+            <p className="mt-1 text-xs text-muted-foreground">
+              Completa el pago para finalizar el proceso de esta sesión.
+            </p>
+          </div>
+
+          <ProcessPaymentButton
+            paymentId={payment.id}
+          />
+        </div>
+      )}
     </section>
   );
 }

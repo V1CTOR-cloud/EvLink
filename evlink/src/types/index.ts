@@ -134,3 +134,14 @@ export type ChargingSessionDetail = {
         created_at: string;
     } | null;
 };
+
+export type Payment = {
+    id: string;
+    session_id: string;
+    user_id: string;
+    amount: number;
+    currency: "EUR";
+    status: "pending" | "completed" | "failed" | "refunded";
+    created_at: string;
+    updated_at: string;
+};

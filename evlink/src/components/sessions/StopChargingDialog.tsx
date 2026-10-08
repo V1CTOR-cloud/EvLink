@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useStopCharging } from "@/hooks/useStopCharging";
+import { useFinishCharging } from "@/hooks/useFinishCharging";
 import type { ChargingSession } from "@/types";
 
 type StopChargingDialogProps = {
@@ -27,7 +27,7 @@ export function StopChargingDialog({
   open,
   onOpenChange,
 }: StopChargingDialogProps) {
-  const { finishCharging, loading } = useStopCharging();
+  const { finish, loading } = useFinishCharging();
 
   const handleOpenChange = (value: boolean) => {
     if (loading) {
@@ -39,13 +39,11 @@ export function StopChargingDialog({
 
   const handleStop = async () => {
     try {
-      const session = await finishCharging(sessionId);
+      const session = await finish(sessionId);
 
       onSessionUpdated(session);
 
       onOpenChange(false);
-
-      toast.success("Carga finalizada correctamente");
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -64,8 +62,7 @@ export function StopChargingDialog({
           <DialogDescription>
             ¿Quieres finalizar esta sesión?
             <br />
-            El consumo y el importe final se calcularán al
-            finalizar.
+            El consumo y el importe final se calcularán al finalizar.
           </DialogDescription>
         </DialogHeader>
 
