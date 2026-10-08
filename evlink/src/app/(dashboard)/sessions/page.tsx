@@ -13,7 +13,7 @@ import { useChargingSessions } from "@/hooks/useChargingSessions";
 export default function SessionsPage() {
   const { user } = useAuth();
 
-  const { sessions, loading, error, updateSession } = useChargingSessions(
+  const { sessions, loading, error } = useChargingSessions(
     user?.id,
   );
 
@@ -57,7 +57,6 @@ export default function SessionsPage() {
             <SessionCard
               key={session.id}
               session={session}
-              onSessionUpdated={updateSession}
             />
           ))}
         </div>

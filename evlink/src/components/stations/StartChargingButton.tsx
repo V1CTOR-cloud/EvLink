@@ -9,12 +9,16 @@ type StartChargingButtonProps = {
   connectorId: string;
   pricePerKwh: number;
   connectorStatus: "available" | "occupied" | "offline";
+  children?: React.ReactNode;
+  className?: string;
 };
 
 export function StartChargingButton({
   connectorId,
   pricePerKwh,
   connectorStatus,
+  children,
+  className,
 }: StartChargingButtonProps) {
   const { user } = useAuth();
   const { startCharging, loading } = useStartCharging();
@@ -40,8 +44,9 @@ export function StartChargingButton({
       type="button"
       onClick={handleStart}
       disabled={loading || !user || connectorStatus !== "available"}
+      className={className}
     >
-      {loading ? "Iniciando..." : "Iniciar carga"}
+      {children ?? <>{loading ? "Iniciando..." : "Iniciar carga"}</>}
     </Button>
   );
 }

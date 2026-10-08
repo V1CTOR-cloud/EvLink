@@ -10,10 +10,6 @@ function formatEnergy(energy: number) {
   return `${Number(energy).toFixed(1)} kWh`;
 }
 
-function formatPrice(price: number) {
-  return `${Number(price).toFixed(2)} €/kWh`;
-}
-
 function formatAmount(amount: number | null) {
   if (amount === null) {
     return "—";

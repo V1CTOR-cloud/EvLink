@@ -73,7 +73,7 @@ export function ActiveSessionCard({ session }: ActiveSessionCardProps) {
           </div>
 
           <Link
-            href="/sessions"
+            href={`/sessions/${session.id}`}
             className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium transition-colors hover:border-primary/30 hover:bg-primary/5"
           >
             Ver sesión

@@ -28,25 +28,19 @@ export default async function SessionDetailPage({
     notFound();
   }
 
-  try {
-    const session = await getChargingSessionById(supabase, user.id, id);
+  const session = await getChargingSessionById(supabase, user.id, id);
 
-    return (
-      <main className="p-6 lg:p-8">
-        <div className="mx-auto max-w-5xl space-y-6">
-          <SessionDetailHeader session={session} />
+  return (
+    <main className="p-6 lg:p-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <SessionDetailHeader session={session} />
 
-          <SessionLocationCard session={session} />
+        <SessionLocationCard session={session} />
 
-          <SessionMetricsCard session={session} />
+        <SessionMetricsCard session={session} />
 
-          <SessionPaymentCard payment={session.payment} />
-        </div>
-      </main>
-    );
-  } catch (error) {
-    console.error("Error loading session:", error);
-
-    throw error;
-  }
+        <SessionPaymentCard payment={session.payment} />
+      </div>
+    </main>
+  );
 }

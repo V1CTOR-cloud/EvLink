@@ -3,7 +3,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ChargingSession,
   ChargingSessionDetail,
-  Payment,
 } from "@/types";
 
 export async function getChargingSessions(
@@ -91,11 +90,6 @@ export async function createChargingSession(
   return session;
 }
 
-type FinishChargingResult = {
-  session: ChargingSession;
-  payment: Payment;
-};
-
 export async function finishCharging(
   supabase: SupabaseClient,
   sessionId: string,
@@ -174,6 +168,38 @@ export async function finishCharging(
       p_energy_kwh: Number(energyKwh.toFixed(2)),
     },
   );
+
+  if (error) {
+    throw new Error(
+      "No se pudo finalizar la sesión de carga.",
+    );
+  }
+
+  const { data: updatedSession, error: updatedSessionError } =
+    await supabase
+      .from("charging_sessions")
+      .select(`
+      *,
+      connector:connectors (
+        id,
+        connector_type,
+        power_kw,
+        station:charging_stations (
+          id,
+          name,
+          address,
+          city
+        )
+      )
+    `)
+      .eq("id", data.id)
+      .single();
+
+  if (updatedSessionError) {
+    throw updatedSessionError;
+  }
+
+  return updatedSession;
 
   if (error) {
     throw new Error(

@@ -60,7 +60,7 @@ export type DashboardStats = {
     totalEnergy: number;
     totalSpent: number;
     activeSessions: DashboardActiveSession[];
-    stations: DashboardStation[];
+    stations: ChargingStationWithConnectors[];
 };
 
 export type DashboardActiveSession = {
@@ -79,19 +79,6 @@ export type DashboardActiveSession = {
             city: string;
         };
     };
-};
-
-export type DashboardStation = {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    status: "available";
-    connectors: {
-        connector_type: "type_2" | "ccs2" | "chademo";
-        power_kw: number;
-        status: "available" | "occupied" | "offline";
-    }[];
 };
 
 export type ChargingSessionDetail = {
@@ -144,4 +131,8 @@ export type Payment = {
     status: "pending" | "completed" | "failed" | "refunded";
     created_at: string;
     updated_at: string;
+};
+
+export type ChargingStationWithConnectors = ChargingStation & {
+  connectors: Connector[];
 };
