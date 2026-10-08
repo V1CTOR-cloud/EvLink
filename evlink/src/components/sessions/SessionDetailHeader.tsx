@@ -2,6 +2,7 @@ import { ArrowLeft, CalendarDays, Plug } from "lucide-react";
 import Link from "next/link";
 
 import type { ChargingSessionDetail } from "@/types";
+import { SessionDetailActions } from "./SessionDetailActions";
 
 type SessionDetailHeaderProps = {
   session: ChargingSessionDetail;
@@ -69,18 +70,24 @@ export function SessionDetailHeader({ session }: SessionDetailHeaderProps) {
           </div>
         </div>
 
-        <span
-          className={[
-            "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
-            statusClasses[session.status],
-          ].join(" ")}
-        >
-          {session.status === "charging" && (
-            <span className="size-1.5 animate-pulse rounded-full bg-current" />
-          )}
+        <div className="flex items-center gap-3">
+          <span
+            className={[
+              "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
+              statusClasses[session.status],
+            ].join(" ")}
+          >
+            {session.status === "charging" && (
+              <span className="size-1.5 animate-pulse rounded-full bg-current" />
+            )}
 
-          {statusLabels[session.status]}
-        </span>
+            {statusLabels[session.status]}
+          </span>
+
+          {(session.status === "pending" || session.status === "charging") && (
+            <SessionDetailActions sessionId={session.id} />
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">

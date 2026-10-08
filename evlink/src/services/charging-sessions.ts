@@ -93,12 +93,62 @@ export async function createChargingSession(
 export async function stopCharging(
   supabase: SupabaseClient,
   sessionId: string,
-  energyKwh: number,
 ): Promise<ChargingSession> {
-  const { data, error } = await supabase.rpc("stop_charging", {
-    p_session_id: sessionId,
-    p_energy_kwh: energyKwh,
-  });
+  const { data: session, error: sessionError } = await supabase
+    .from("charging_sessions")
+    .select(`
+      id,
+      started_at,
+      status,
+      connector:connectors (
+        power_kw
+      )
+    `)
+    .eq("id", sessionId)
+    .single();
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  if (!session) {
+    throw new Error("La sesión no existe.");
+  }
+
+  if (
+    session.status !== "pending" &&
+    session.status !== "charging"
+  ) {
+    throw new Error("La sesión no está activa.");
+  }
+
+  const connector = Array.isArray(session.connector)
+    ? session.connector[0]
+    : session.connector;
+
+  if (!connector) {
+    throw new Error("El conector de la sesión no existe.");
+  }
+
+  const startedAt = new Date(session.started_at);
+  const now = new Date();
+
+  const durationHours =
+    (now.getTime() - startedAt.getTime()) /
+    (1000 * 60 * 60);
+
+  const energyKwh = Math.max(
+    0,
+    durationHours * connector.power_kw,
+  );
+
+  const { data, error } = await supabase.rpc(
+    "stop_charging",
+    {
+      p_session_id: sessionId,
+      p_energy_kwh: Number(energyKwh.toFixed(2)),
+    },
+  );
 
   if (error) {
     throw new Error(
@@ -107,8 +157,8 @@ export async function stopCharging(
   }
 
   const {
-    data: session,
-    error: sessionError,
+    data: updatedSession,
+    error: updatedSessionError,
   } = await supabase
     .from("charging_sessions")
     .select(`
@@ -128,11 +178,11 @@ export async function stopCharging(
     .eq("id", data.id)
     .single();
 
-  if (sessionError) {
-    throw sessionError;
+  if (updatedSessionError) {
+    throw updatedSessionError;
   }
 
-  return session;
+  return updatedSession;
 }
 
 export async function getChargingSessionById(

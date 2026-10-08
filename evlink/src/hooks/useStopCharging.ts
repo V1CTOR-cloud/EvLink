@@ -12,7 +12,6 @@ export function useStopCharging() {
 
     const finishCharging = async (
         sessionId: string,
-        energyKwh: number,
     ) => {
         try {
             setLoading(true);
@@ -21,7 +20,6 @@ export function useStopCharging() {
             const session = await stopCharging(
                 supabase,
                 sessionId,
-                energyKwh,
             );
 
             return session;
@@ -29,7 +27,9 @@ export function useStopCharging() {
             const normalizedError =
                 error instanceof Error
                     ? error
-                    : new Error("No se pudo finalizar la carga");
+                    : new Error(
+                        "No se pudo finalizar la carga",
+                    );
 
             setError(normalizedError);
             throw normalizedError;
