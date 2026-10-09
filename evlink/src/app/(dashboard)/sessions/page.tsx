@@ -6,16 +6,15 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { SessionCard } from "@/components/sessions/SessionCard";
 import { SessionsTable } from "@/components/sessions/SessionTable";
-import { SessionsViewToggle } from "@/components/sessions/SessionsViewToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useChargingSessions } from "@/hooks/useChargingSessions";
+import { Toggle } from "@/components/common/Toggle";
 
 export default function SessionsPage() {
+  const [onlyActive, setOnlyActive] = useState(false);
   const { user } = useAuth();
 
-  const { sessions, loading, error } = useChargingSessions(
-    user?.id,
-  );
+  const { sessions, loading, error } = useChargingSessions(user?.id);
 
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
@@ -46,7 +45,11 @@ export default function SessionsPage() {
           </p>
         </div>
 
-        <SessionsViewToggle value={viewMode} onChange={setViewMode} />
+        <Toggle
+          checked={onlyActive}
+          onCheckedChange={setOnlyActive}
+          label="Mostrar solo sesiones activas"
+        />
       </div>
 
       {sessions.length === 0 ? (
@@ -54,10 +57,7 @@ export default function SessionsPage() {
       ) : viewMode === "cards" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sessions.map((session) => (
-            <SessionCard
-              key={session.id}
-              session={session}
-            />
+            <SessionCard key={session.id} session={session} />
           ))}
         </div>
       ) : (
