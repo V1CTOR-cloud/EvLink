@@ -200,14 +200,6 @@ export async function finishCharging(
   }
 
   return updatedSession;
-
-  if (error) {
-    throw new Error(
-      "No se pudo finalizar la sesión de carga.",
-    );
-  }
-
-  return data as ChargingSession;
 }
 
 export async function getChargingSessionById(

@@ -37,17 +37,21 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
     connectorId: string,
     pricePerKwh: number,
   ) => {
-    if (!user || loading) {
-      return;
-    }
+    if (!user || loading) return;
 
     try {
-      await startCharging(user.id, connectorId, pricePerKwh);
+      const session = await startCharging(user.id, connectorId, pricePerKwh);
 
-      toast.success("Carga iniciada correctamente");
+      console.log("[StationConnectorsCard] Sesión:", session);
 
-      router.refresh();
+      if (!session?.id) {
+        throw new Error("La sesión se ha creado, pero no tiene un ID válido.");
+      }
+
+      window.location.assign(`/sessions/${session.id}`);
     } catch (error) {
+      console.error("[StationConnectorsCard] Error:", error);
+
       toast.error(
         error instanceof Error ? error.message : "No se pudo iniciar la carga",
       );
@@ -83,7 +87,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
 
               const content = (
                 <>
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3 cursor-pointer">
                     <div className="flex items-center gap-3">
                       <div
                         className={[

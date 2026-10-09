@@ -32,11 +32,15 @@ export function ConnectorItem({ connector }: ConnectorItemProps) {
     }
 
     try {
-      await startCharging(user.id, connector.id, connector.price_per_kwh);
+      const session = await startCharging(
+        user.id,
+        connector.id,
+        connector.price_per_kwh,
+      );
 
       toast.success("Carga iniciada correctamente");
 
-      router.refresh();
+      router.push(`/sessions/${session.id}`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "No se pudo iniciar la carga",
