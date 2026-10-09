@@ -136,3 +136,11 @@ export type Payment = {
 export type ChargingStationWithConnectors = ChargingStation & {
   connectors: Connector[];
 };
+
+export type SearchResult = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  type: "page" | "station" | "session";
+  href: string;
+};
