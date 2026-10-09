@@ -1,5 +1,4 @@
 import { StationsExplorer } from "@/components/stations/StationsExplorer";
-import { StationsList } from "@/components/stations/StationsList";
 import { createClient } from "@/lib/supabase/server";
 import { getChargingStations } from "@/services/charging-stations";
 
