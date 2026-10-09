@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AlertCircle,
   LayoutDashboard,
@@ -84,6 +84,42 @@ export function GlobalSearch() {
     router.push(result.href);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setOpen((currentOpen) => !currentOpen);
+        setQuery("");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isSearchShortcut =
+        (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+
+      if (!isSearchShortcut) {
+        return;
+      }
+
+      event.preventDefault();
+      handleOpenChange(!open);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   return (
     <>
       <Button
@@ -122,7 +158,12 @@ export function GlobalSearch() {
                   <AlertCircle className="size-4" />
                   No se pudieron cargar los resultados.
                 </div>
-                <Button type="button" variant="outline" size="sm" onClick={retry}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={retry}
+                >
                   Reintentar
                 </Button>
               </div>

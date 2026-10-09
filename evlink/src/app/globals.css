@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -157,5 +159,158 @@
   }
   html {
     @apply font-sans;
+  }
+}
+/* Marcadores de estaciones EvLink */
+.evlink-map-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid rgb(255 255 255 / 85%);
+  border-radius: 9999px;
+  cursor: pointer;
+  opacity: 0.72;
+  transform: scale(1);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 16%);
+}
+
+/* Disponibles: pulso sutil */
+.evlink-map-marker--available {
+  background: rgb(46 212 82 / 85%);
+}
+
+.evlink-map-marker--available::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgb(46 212 82 / 55%);
+  border-radius: inherit;
+  content: "";
+  animation: evlink-marker-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Sin conectores disponibles */
+.evlink-map-marker--unavailable {
+  background: rgb(107 114 128 / 80%);
+}
+
+/* Hover: se aprecia mejor al interactuar */
+.evlink-map-marker:hover {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1.18);
+}
+
+/* Estación seleccionada */
+.evlink-map-marker.is-selected {
+  z-index: 3;
+  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgb(46 212 82 / 18%);
+}
+
+.evlink-map-marker.is-selected::after {
+  animation-duration: 1.8s;
+}
+
+@keyframes evlink-marker-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evlink-map-marker,
+  .evlink-map-marker--available::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Marcadores EvLink */
+.evlink-map-marker {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid rgb(255 255 255 / 90%);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.76;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 16%);
+  transition:
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Estaciones disponibles */
+.evlink-map-marker--available {
+  background-color: rgb(46 212 82 / 88%);
+}
+
+.evlink-map-marker--available::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgb(46 212 82 / 55%);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+  animation: evlink-marker-pulse 2.4s ease-out infinite;
+}
+
+/* Estaciones sin conectores disponibles */
+.evlink-map-marker--unavailable {
+  background-color: rgb(115 115 115 / 82%);
+}
+
+/* Interacción */
+.evlink-map-marker:hover {
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 10%);
+}
+
+/* Estación seleccionada */
+.evlink-map-marker.is-selected {
+  opacity: 1;
+  box-shadow: 0 0 0 4px rgb(46 212 82 / 22%);
+}
+
+.evlink-map-marker.is-selected::after {
+  border-color: rgb(46 212 82 / 75%);
+  animation-duration: 1.8s;
+}
+
+@keyframes evlink-marker-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .evlink-map-marker {
+    transition: none;
+  }
+
+  .evlink-map-marker--available::after {
+    animation: none;
   }
 }
