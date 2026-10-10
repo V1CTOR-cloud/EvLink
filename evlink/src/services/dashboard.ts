@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { DashboardStats } from "@/types";
+import { buildDailySeries } from "@/lib/dashboard-series";
 
 type ActiveSessionStation = {
   name: string;
@@ -12,6 +13,12 @@ type ActiveSessionConnector = {
   connector_type: "type_2" | "ccs2" | "chademo";
   power_kw: number;
   station: ActiveSessionStation | ActiveSessionStation[];
+};
+
+type CompletedSessionRow = {
+  started_at: string;
+  energy_kwh: number;
+  total_amount: number | null;
 };
 
 type ActiveSessionRow = {
@@ -42,7 +49,7 @@ export async function getDashboardStats(
 
     supabase
       .from("charging_sessions")
-      .select("energy_kwh, total_amount")
+      .select("started_at, energy_kwh, total_amount")
       .eq("user_id", userId)
       .eq("status", "completed"),
 
@@ -112,20 +119,19 @@ export async function getDashboardStats(
     throw stationsResult.error;
   }
 
-  const availableStationsData = (
-    stationsResult.data ?? []
-  ).filter((station) =>
-    station.connectors?.some(
-      (connector) => connector.status === "available",
-    ),
+  const availableStationsData = (stationsResult.data ?? []).filter(
+    (station) =>
+      station.connectors?.some(
+        (connector) => connector.status === "available",
+      ),
   );
 
   const availableStations = availableStationsData.length;
 
   const stations = availableStationsData.slice(0, 3);
 
-  const activeSessionRows =
-    (activeSessionsDataResult.data ?? []) as ActiveSessionRow[];
+  const activeSessionRows = (activeSessionsDataResult.data ??
+    []) as ActiveSessionRow[];
 
   const activeSessions: DashboardStats["activeSessions"] =
     activeSessionRows.flatMap((session) => {
@@ -170,29 +176,26 @@ export async function getDashboardStats(
       ];
     });
 
-  const totalEnergy = (
-    completedSessionsResult.data ?? []
-  ).reduce(
-    (total, session) =>
-      total + Number(session.energy_kwh ?? 0),
+  const completedSessions = (completedSessionsResult.data ??
+    []) as CompletedSessionRow[];
+
+  const totalEnergy = completedSessions.reduce(
+    (total, session) => total + Number(session.energy_kwh ?? 0),
     0,
   );
 
-  const totalSpent = (
-    completedSessionsResult.data ?? []
-  ).reduce(
-    (total, session) =>
-      total + Number(session.total_amount ?? 0),
+  const totalSpent = completedSessions.reduce(
+    (total, session) => total + Number(session.total_amount ?? 0),
     0,
   );
 
   return {
     availableStations,
-    activeSessionsCount:
-      activeSessionsResult.count ?? 0,
+    activeSessionsCount: activeSessionsResult.count ?? 0,
     totalEnergy,
     totalSpent,
     activeSessions,
     stations,
+    history: buildDailySeries(completedSessions),
   };
 }

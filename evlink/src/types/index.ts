@@ -61,6 +61,7 @@ export type DashboardStats = {
     totalSpent: number;
     activeSessions: DashboardActiveSession[];
     stations: ChargingStationWithConnectors[];
+    history: DashboardSeriesPoint[];
 };
 
 export type DashboardActiveSession = {
@@ -165,3 +166,10 @@ export type CreatePaymentMethodInput = Pick<
 >;
 
 export type UpdatePaymentMethodInput = Partial<CreatePaymentMethodInput>;
+
+export type DashboardSeriesPoint = {
+  date: string;
+  energy: number;
+  spent: number;
+  sessions: number;
+};

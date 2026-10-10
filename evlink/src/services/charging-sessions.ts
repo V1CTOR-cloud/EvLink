@@ -37,14 +37,10 @@ export async function getChargingSessions(
 
 export async function createChargingSession(
   supabase: SupabaseClient,
-  userId: string,
   connectorId: string,
-  pricePerKwh: number,
 ): Promise<ChargingSession> {
   const { data, error } = await supabase.rpc("start_charging", {
-    p_user_id: userId,
     p_connector_id: connectorId,
-    p_price_per_kwh: pricePerKwh,
   });
 
   if (error) {
@@ -61,10 +57,7 @@ export async function createChargingSession(
 
   const sessionId = data.id;
 
-  const {
-    data: session,
-    error: sessionError,
-  } = await supabase
+  const { data: session, error: sessionError } = await supabase
     .from("charging_sessions")
     .select(`
       *,
@@ -94,78 +87,10 @@ export async function finishCharging(
   supabase: SupabaseClient,
   sessionId: string,
 ): Promise<ChargingSession> {
-  /*
-   * Primero obtenemos los datos necesarios para
-   * simular temporalmente el consumo.
-   */
-  const { data: session, error: sessionError } = await supabase
-    .from("charging_sessions")
-    .select(`
-      id,
-      started_at,
-      status,
-      connector:connectors (
-        power_kw
-      )
-    `)
-    .eq("id", sessionId)
-    .single();
-
-  if (sessionError) {
-    throw sessionError;
-  }
-
-  if (!session) {
-    throw new Error("La sesión no existe.");
-  }
-
-  if (
-    session.status !== "pending" &&
-    session.status !== "charging"
-  ) {
-    throw new Error("La sesión no está activa.");
-  }
-
-  const connector = Array.isArray(session.connector)
-    ? session.connector[0]
-    : session.connector;
-
-  if (!connector) {
-    throw new Error(
-      "El conector de la sesión no existe.",
-    );
-  }
-
-  /*
-   * Simulación temporal del consumo.
-   *
-   * Más adelante esto vendrá del cargador/OCPP.
-   */
-  const startedAt = new Date(session.started_at);
-  const now = new Date();
-
-  const durationHours =
-    (now.getTime() - startedAt.getTime()) /
-    (1000 * 60 * 60);
-
-  const energyKwh = Math.max(
-    0,
-    durationHours * connector.power_kw,
-  );
-
-  /*
-   * Una única operación de dominio:
-   *
-   * - finaliza sesión
-   * - calcula importe
-   * - libera conector
-   * - crea payment
-   */
   const { data, error } = await supabase.rpc(
     "finish_charging",
     {
       p_session_id: sessionId,
-      p_energy_kwh: Number(energyKwh.toFixed(2)),
     },
   );
 
@@ -179,19 +104,19 @@ export async function finishCharging(
     await supabase
       .from("charging_sessions")
       .select(`
-      *,
-      connector:connectors (
-        id,
-        connector_type,
-        power_kw,
-        station:charging_stations (
+        *,
+        connector:connectors (
           id,
-          name,
-          address,
-          city
+          connector_type,
+          power_kw,
+          station:charging_stations (
+            id,
+            name,
+            address,
+            city
+          )
         )
-      )
-    `)
+      `)
       .eq("id", data.id)
       .single();
 
@@ -201,6 +126,7 @@ export async function finishCharging(
 
   return updatedSession;
 }
+
 
 export async function getChargingSessionById(
   supabase: SupabaseClient,

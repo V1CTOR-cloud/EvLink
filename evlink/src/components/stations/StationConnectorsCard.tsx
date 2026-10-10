@@ -33,14 +33,11 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
     (connector) => connector.status === "available",
   );
 
-  const handleStartCharging = async (
-    connectorId: string,
-    pricePerKwh: number,
-  ) => {
+  const handleStartCharging = async (connectorId: string) => {
     if (!user || loading) return;
 
     try {
-      const session = await startCharging(user.id, connectorId, pricePerKwh);
+      const session = await startCharging(connectorId);
 
       if (!session?.id) {
         throw new Error("La sesión se ha creado, pero no tiene un ID válido.");
@@ -179,7 +176,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                   key={connector.id}
                   type="button"
                   onClick={() =>
-                    handleStartCharging(connector.id, connector.price_per_kwh)
+                    handleStartCharging(connector.id)
                   }
                   disabled={!user || loading}
                   className="rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/2 disabled:cursor-not-allowed disabled:opacity-50"
