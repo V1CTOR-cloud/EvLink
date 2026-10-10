@@ -1,5 +1,5 @@
-import { EmptyState } from "@/components/common/EmptyState";
-import type { ChargingStationWithConnectors } from "@/services/charging-stations";
+import { EmptyState } from "@/components/common/EmptyState"
+import type { ChargingStationWithConnectors } from "@/types";
 import { StationCard } from "./StationCard";
 
 type StationsListProps = {

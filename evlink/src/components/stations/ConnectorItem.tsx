@@ -1,6 +1,12 @@
-import { Badge } from "@/components/ui/badge";
+"use client";
+
+import { Zap } from "lucide-react";
+import { toast } from "sonner";
+
+import { useAuth } from "@/hooks/useAuth";
+import { useStartCharging } from "@/hooks/useStartCharging";
 import type { Connector } from "@/types";
-import { StartChargingButton } from "./StartChargingButton";
+import { useRouter } from "next/navigation";
 
 type ConnectorItemProps = {
   connector: Connector;
@@ -12,31 +18,82 @@ const connectorLabels = {
   chademo: "CHAdeMO",
 } as const;
 
-const connectorStatusLabels = {
-  available: "Disponible",
-  occupied: "Ocupado",
-  offline: "Fuera de servicio",
-} as const;
-
 export function ConnectorItem({ connector }: ConnectorItemProps) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div>
-        <p className="font-medium">
-          {connectorLabels[connector.connector_type]}
-        </p>
+  const { user } = useAuth();
+  const { startCharging, loading } = useStartCharging();
 
-        <p className="text-sm text-muted-foreground">
-          {connector.power_kw} kW · {connector.price_per_kwh.toFixed(2)} €/kWh
-        </p>
+  const isAvailable = connector.status === "available";
+
+  const router = useRouter();
+
+  const handleStart = async () => {
+    if (!user || !isAvailable || loading) {
+      return;
+    }
+
+    try {
+      const session = await startCharging(
+        user.id,
+        connector.id,
+        connector.price_per_kwh,
+      );
+
+      toast.success("Carga iniciada correctamente");
+
+      router.push(`/sessions/${session.id}`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "No se pudo iniciar la carga",
+      );
+    }
+  };
+
+  if (!isAvailable) {
+    return (
+      <div className="flex flex-1 items-center justify-between rounded-md bg-muted px-2.5 py-2">
+        <div className="flex items-center gap-1.5">
+          <Zap className="size-3 text-muted-foreground" />
+
+          <span className="text-[10px] font-medium">
+            {connectorLabels[connector.connector_type]}
+          </span>
+
+          <span className="text-[10px] text-muted-foreground">
+            {connector.power_kw} kW
+          </span>
+        </div>
+
+        <span className="text-[10px] text-muted-foreground">
+          {connector.status === "occupied" ? "Ocupado" : "Fuera de servicio"}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleStart}
+      disabled={!user || loading}
+      className="flex flex-1 items-center justify-between rounded-md bg-muted px-2.5 py-2 text-left transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <div className="flex items-center gap-1.5">
+        <Zap className="size-3 text-primary" />
+
+        <span className="text-[10px] font-medium">
+          {connectorLabels[connector.connector_type]}
+        </span>
+
+        <span className="text-[10px] text-muted-foreground">
+          {connector.power_kw} kW
+        </span>
       </div>
 
-      <Badge variant="outline">{connectorStatusLabels[connector.status]}</Badge>
-      <StartChargingButton
-        connectorId={connector.id}
-        pricePerKwh={connector.price_per_kwh}
-        connectorStatus={connector.status}
-      />
-    </div>
+      <span className="text-[10px] font-medium">
+        {loading
+          ? "Iniciando..."
+          : `${Number(connector.price_per_kwh).toFixed(2)} €/kWh`}
+      </span>
+    </button>
   );
 }

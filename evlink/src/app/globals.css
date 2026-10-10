@@ -1,15 +1,17 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-inter);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +51,103 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: #f8faf9;
+  --foreground: #171a18;
+
+  --card: #ffffff;
+  --card-foreground: #171a18;
+
+  --popover: #ffffff;
+  --popover-foreground: #171a18;
+
+  --primary: #2ed452;
+  --primary-foreground: #f9f9f9;
+
+  --secondary: #f0f3f1;
+  --secondary-foreground: #171a18;
+
+  --muted: #f0f3f1;
+  --muted-foreground: #68706b;
+
+  --accent: #e8f8eb;
+  --accent-foreground: #16652a;
+
+  --destructive: #dc2626;
+
+  --border: #e1e6e3;
+  --input: #d8dedb;
+
+  --ring: #2ed452;
+
+  --chart-1: #2ed452;
+  --chart-2: #22c55e;
+  --chart-3: #16a34a;
+  --chart-4: #15803d;
+  --chart-5: #166534;
+
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171a18;
+
+  --sidebar-primary: #2ed452;
+  --sidebar-primary-foreground: #07100a;
+
+  --sidebar-accent: #ecfff0;
+  --sidebar-accent-foreground: #16652a;
+
+  --sidebar-border: #e1e6e3;
+  --sidebar-ring: #2ed452;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0f1110;
+  --foreground: #ededed;
+
+  --card: #171a18;
+  --card-foreground: #ededed;
+
+  --popover: #171a18;
+  --popover-foreground: #ededed;
+
+  --primary: #2ed452;
+  --primary-foreground: #07100a;
+
+  --secondary: #1d211f;
+  --secondary-foreground: #ededed;
+
+  --muted: #1d211f;
+  --muted-foreground: #9b9f9c;
+
+  --accent: #1d211f;
+  --accent-foreground: #ededed;
+
+  --destructive: #ef4444;
+
+  --border: #292d2b;
+  --input: #292d2b;
+
+  --ring: #2ed452;
+
+  --chart-1: #2ed452;
+  --chart-2: #22c55e;
+  --chart-3: #16a34a;
+  --chart-4: #15803d;
+  --chart-5: #166534;
+
+  --radius: 0.625rem;
+
+  --sidebar: #0b0d0c;
+  --sidebar-foreground: #ededed;
+
+  --sidebar-primary: #2ed452;
+  --sidebar-primary-foreground: #07100a;
+
+  --sidebar-accent: #171a18;
+  --sidebar-accent-foreground: #ededed;
+
+  --sidebar-border: #292d2b;
+  --sidebar-ring: #2ed452;
 }
 
 @layer base {
@@ -126,5 +159,158 @@
   }
   html {
     @apply font-sans;
+  }
+}
+/* Marcadores de estaciones EvLink */
+.evlink-map-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid rgb(255 255 255 / 85%);
+  border-radius: 9999px;
+  cursor: pointer;
+  opacity: 0.72;
+  transform: scale(1);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 16%);
+}
+
+/* Disponibles: pulso sutil */
+.evlink-map-marker--available {
+  background: rgb(46 212 82 / 85%);
+}
+
+.evlink-map-marker--available::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgb(46 212 82 / 55%);
+  border-radius: inherit;
+  content: "";
+  animation: evlink-marker-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Sin conectores disponibles */
+.evlink-map-marker--unavailable {
+  background: rgb(107 114 128 / 80%);
+}
+
+/* Hover: se aprecia mejor al interactuar */
+.evlink-map-marker:hover {
+  z-index: 2;
+  opacity: 1;
+  transform: scale(1.18);
+}
+
+/* Estación seleccionada */
+.evlink-map-marker.is-selected {
+  z-index: 3;
+  opacity: 1;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgb(46 212 82 / 18%);
+}
+
+.evlink-map-marker.is-selected::after {
+  animation-duration: 1.8s;
+}
+
+@keyframes evlink-marker-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evlink-map-marker,
+  .evlink-map-marker--available::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Marcadores EvLink */
+.evlink-map-marker {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid rgb(255 255 255 / 90%);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.76;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 16%);
+  transition:
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Estaciones disponibles */
+.evlink-map-marker--available {
+  background-color: rgb(46 212 82 / 88%);
+}
+
+.evlink-map-marker--available::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgb(46 212 82 / 55%);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+  animation: evlink-marker-pulse 2.4s ease-out infinite;
+}
+
+/* Estaciones sin conectores disponibles */
+.evlink-map-marker--unavailable {
+  background-color: rgb(115 115 115 / 82%);
+}
+
+/* Interacción */
+.evlink-map-marker:hover {
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 10%);
+}
+
+/* Estación seleccionada */
+.evlink-map-marker.is-selected {
+  opacity: 1;
+  box-shadow: 0 0 0 4px rgb(46 212 82 / 22%);
+}
+
+.evlink-map-marker.is-selected::after {
+  border-color: rgb(46 212 82 / 75%);
+  animation-duration: 1.8s;
+}
+
+@keyframes evlink-marker-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .evlink-map-marker {
+    transition: none;
+  }
+
+  .evlink-map-marker--available::after {
+    animation: none;
   }
 }
