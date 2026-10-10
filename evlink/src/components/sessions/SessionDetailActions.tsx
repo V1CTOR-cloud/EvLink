@@ -7,46 +7,50 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { StopChargingDialog } from "./StopChargingDialog";
 import { useCreatePayment } from "@/hooks/useCreatePayment";
+import { useProcessPayment } from "@/hooks/useProcessPayment";
 import type { ChargingSession } from "@/types";
 
 type SessionDetailActionsProps = {
   sessionId: string;
 };
 
-export function SessionDetailActions({
-  sessionId,
-}: SessionDetailActionsProps) {
+export function SessionDetailActions({ sessionId }: SessionDetailActionsProps) {
   const router = useRouter();
-
   const [open, setOpen] = useState(false);
 
-  const {
-    create,
-    loading: paymentLoading,
-  } = useCreatePayment();
+  const { create, loading: creatingPayment } = useCreatePayment();
 
-  const handleSessionUpdated = async (
-    session: ChargingSession,
-  ) => {
+  const { process, loading: processingPayment } = useProcessPayment();
+
+  const paymentLoading = creatingPayment || processingPayment;
+
+  const handleSessionUpdated = async (session: ChargingSession) => {
+    let paymentCreated = false;
+
     try {
-      await create(session.id);
+      const payment = await create(session.id);
+      paymentCreated = true;
 
-      setOpen(false);
+      await process(payment.id);
 
-      toast.success(
-        "Sesión finalizada y pago creado",
-      );
-
-      router.refresh();
+      toast.success("Sesión finalizada y pago completado");
     } catch (error) {
-      toast.error(
+      const message =
         error instanceof Error
           ? error.message
-          : "La sesión se finalizó, pero no se pudo crear el pago",
-      );
+          : "Se ha producido un error inesperado.";
 
+      if (paymentCreated) {
+        toast.error(
+          `La sesión se ha finalizado y el pago está registrado, pero no se pudo completar: ${message}`,
+        );
+      } else {
+        toast.error(
+          `La sesión se ha finalizado, pero no se pudo crear el pago: ${message}`,
+        );
+      }
+    } finally {
       setOpen(false);
-
       router.refresh();
     }
   };

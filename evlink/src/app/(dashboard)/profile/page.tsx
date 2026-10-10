@@ -18,6 +18,7 @@ import {
   profileSchema,
   type ProfileFormData,
 } from "@/schemas/profile";
+import { PaymentMethodsSection } from "@/components/profile/payment-methods/PaymentMethodsSection";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -212,6 +213,8 @@ export default function ProfilePage() {
             </form>
           </div>
         </section>
+
+        <PaymentMethodsSection userId={user.id} />
       </div>
     </main>
   );

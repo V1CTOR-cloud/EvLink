@@ -144,3 +144,24 @@ export type SearchResult = {
   type: "page" | "station" | "session";
   href: string;
 };
+
+export type PaymentBrand = "visa" | "mastercard" | "amex";
+
+export interface PaymentMethod {
+  id: string;
+  user_id: string;
+  brand: PaymentBrand;
+  last_four: string;
+  expiry_month: number;
+  expiry_year: number;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreatePaymentMethodInput = Pick<
+  PaymentMethod,
+  "brand" | "last_four" | "expiry_month" | "expiry_year"
+>;
+
+export type UpdatePaymentMethodInput = Partial<CreatePaymentMethodInput>;
