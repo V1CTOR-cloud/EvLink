@@ -62,12 +62,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     if (!data.user) {
-      throw new Error("No se pudo crear el usuario");
+      throw new Error("Supabase no devolvió el usuario creado.");
+    }
+
+    // Con confirmación por correo, puede no existir sesión todavía.
+    if (data.session) {
+      setUser(data.user);
+    }
+
+    if (!data.user) {
+      throw new Error("Supabase no devolvió el usuario creado.");
     }
 
     if (!data.session) {
       throw new Error(
-        "Cuenta creada. Revisa tu correo para confirmar la cuenta.",
+        "La cuenta se ha creado, pero no hay sesión activa. Revisa la configuración de autenticación de Supabase.",
       );
     }
 

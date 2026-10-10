@@ -127,7 +127,7 @@ export function GlobalSearch() {
         variant="outline"
         onClick={() => handleOpenChange(true)}
         aria-label="Abrir buscador global"
-        className="h-8 w-[clamp(7rem,24vw,15rem)] justify-start gap-2 px-2 text-muted-foreground sm:px-3"
+        className="h-10 w-[clamp(7rem,24vw,15rem)] justify-start gap-2 px-2 text-muted-foreground sm:px-3"
       >
         <Search className="size-4 shrink-0" />
         <span className="truncate">Buscar...</span>

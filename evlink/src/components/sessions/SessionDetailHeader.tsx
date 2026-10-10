@@ -51,18 +51,18 @@ export function SessionDetailHeader({ session }: SessionDetailHeaderProps) {
       </Link>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <Plug className="size-5 text-primary" />
             </div>
 
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
+            <div className="min-w-0">
+              <h1 className="break-words text-2xl font-semibold tracking-tight">
                 {session.connector.station.name}
               </h1>
 
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 break-words text-sm text-muted-foreground">
                 {session.connector.station.address},{" "}
                 {session.connector.station.city}
               </p>
@@ -70,7 +70,7 @@ export function SessionDetailHeader({ session }: SessionDetailHeaderProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span
             className={[
               "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
@@ -101,7 +101,9 @@ export function SessionDetailHeader({ session }: SessionDetailHeaderProps) {
 
         <span className="text-border">|</span>
 
-        <span className="font-mono text-xs">ID: {session.id}</span>
+        <span className="min-w-0 break-all font-mono text-xs">
+          ID: {session.id}
+        </span>
       </div>
     </div>
   );

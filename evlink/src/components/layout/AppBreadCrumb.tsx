@@ -22,34 +22,32 @@ export function AppBreadCrumb() {
   const CurrentIcon = currentRoute?.icon;
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
+    <Breadcrumb className="min-w-0 overflow-hidden">
+      <BreadcrumbList className="flex-nowrap gap-1 sm:gap-2">
+        <BreadcrumbItem className="shrink-0">
           <BreadcrumbLink
             render={
               <Link
                 href="/"
-                className="flex items-center justify-center cursor-pointer"
                 aria-label="Ir al dashboard"
+                className="flex cursor-pointer items-center gap-2"
               >
-                <div className="flex items-center gap-2">
-                  <div className="flex size-6 items-center justify-center rounded-md bg-primary">
-                    <Zap className="size-4 text-white" />
-                  </div>
-                  <span>App</span>
-                </div>
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary">
+                  <Zap className="size-4 text-white" />
+                </span>
+                <span className="hidden sm:inline">App</span>
               </Link>
             }
-          ></BreadcrumbLink>
+          />
         </BreadcrumbItem>
 
-        <BreadcrumbSeparator />
+        <BreadcrumbSeparator className="shrink-0" />
 
-        <BreadcrumbItem>
-          <BreadcrumbLink className="flex items-center gap-1 cursor-pointer">
-            {CurrentIcon && <CurrentIcon className="size-4" />}
-            <BreadcrumbPage>{currentPage}</BreadcrumbPage>
-          </BreadcrumbLink>
+        <BreadcrumbItem className="min-w-0 flex-1">
+          <BreadcrumbPage className="flex min-w-0 items-center gap-1">
+            {CurrentIcon && <CurrentIcon className="size-4 shrink-0" />}
+            <span className="truncate">{currentPage}</span>
+          </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

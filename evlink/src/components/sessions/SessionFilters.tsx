@@ -88,7 +88,7 @@ export function SessionFilters({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => onOpenChange(true)}
-        className="h-9 gap-2"
+        className="h-10 gap-2"
       >
         <SlidersHorizontal className="size-4" />
         Filtros
@@ -127,7 +127,7 @@ export function SessionFilters({
                       type="button"
                       aria-pressed={selected}
                       onClick={() => onStatusChange(filter.value)}
-                      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                      className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                         selected
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
