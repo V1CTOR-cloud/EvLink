@@ -1,10 +1,17 @@
 import { Clock3, Euro, Gauge, Zap } from "lucide-react";
 
+import { MetricRadial } from "@/components/sessions/MetricRadial";
 import type { ChargingSessionDetail } from "@/types";
 
 type SessionMetricsCardProps = {
   session: ChargingSessionDetail;
 };
+
+// Escalas visuales del anillo. NO son límites de negocio.
+const REFERENCE_ENERGY_KWH = 50;
+const REFERENCE_AMOUNT_EUR = 50;
+const REFERENCE_POWER_KW = 350;
+const REFERENCE_DURATION_MIN = 120;
 
 function formatEnergy(energy: number) {
   return `${Number(energy).toFixed(1)} kWh`;
@@ -50,13 +57,8 @@ function formatDuration(startedAt: string, endedAt: string | null) {
   return `${hours} h ${remainingMinutes} min`;
 }
 
-function getEnergyProgress(energy: number) {
-  return Math.min((energy / 50) * 100, 100);
-}
-
-function getPowerProgress(power: number) {
-  return Math.min((power / 350) * 100, 100);
-}
+const toProgress = (value: number, reference: number) =>
+  Math.min((value / reference) * 100, 100);
 
 function getDurationProgress(startedAt: string, endedAt: string | null) {
   const minutes = getDurationMinutes(startedAt, endedAt);
@@ -65,7 +67,7 @@ function getDurationProgress(startedAt: string, endedAt: string | null) {
     return 100;
   }
 
-  return Math.min((minutes / 120) * 100, 100);
+  return toProgress(minutes, REFERENCE_DURATION_MIN);
 }
 
 export function SessionMetricsCard({ session }: SessionMetricsCardProps) {
@@ -74,19 +76,19 @@ export function SessionMetricsCard({ session }: SessionMetricsCardProps) {
       label: "Energía",
       value: formatEnergy(session.energy_kwh),
       icon: Zap,
-      progress: getEnergyProgress(session.energy_kwh),
+      progress: toProgress(session.energy_kwh, REFERENCE_ENERGY_KWH),
     },
     {
       label: "Coste",
       value: formatAmount(session.total_amount),
       icon: Euro,
-      progress: Math.min(((session.total_amount ?? 0) / 50) * 100, 100),
+      progress: toProgress(session.total_amount ?? 0, REFERENCE_AMOUNT_EUR),
     },
     {
       label: "Potencia",
       value: `${session.connector.power_kw} kW`,
       icon: Gauge,
-      progress: getPowerProgress(session.connector.power_kw),
+      progress: toProgress(session.connector.power_kw, REFERENCE_POWER_KW),
     },
     {
       label: "Duración",
@@ -106,35 +108,31 @@ export function SessionMetricsCard({ session }: SessionMetricsCardProps) {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {metrics.map((metric) => {
           const Icon = metric.icon;
 
           return (
             <div
               key={metric.label}
-              className="rounded-xl border border-border bg-card p-5"
+              className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-5"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Icon className="size-4" />
+              <div className="min-w-0">
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {metric.label}
+                </p>
 
-                  <span className="text-xs font-medium">{metric.label}</span>
-                </div>
+                <p className="mt-1 truncate text-xl font-semibold tracking-tight">
+                  {metric.value}
+                </p>
               </div>
 
-              <p className="mt-4 text-xl font-semibold tracking-tight">
-                {metric.value}
-              </p>
-
-              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{
-                    width: `${metric.progress}%`,
-                  }}
-                />
-              </div>
+              <MetricRadial
+                progress={metric.progress}
+                label={`${metric.label}: ${metric.value}`}
+              >
+                <Icon className="size-4" />
+              </MetricRadial>
             </div>
           );
         })}

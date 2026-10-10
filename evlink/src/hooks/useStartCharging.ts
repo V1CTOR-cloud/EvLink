@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -12,9 +13,7 @@ export function useStartCharging() {
     const [supabase] = useState(() => createClient());
 
     const startCharging = async (
-        userId: string,
         connectorId: string,
-        pricePerKwh: number,
     ) => {
         try {
             setLoading(true);
@@ -22,9 +21,7 @@ export function useStartCharging() {
 
             const session = await createChargingSession(
                 supabase,
-                userId,
                 connectorId,
-                pricePerKwh,
             );
 
             return session;

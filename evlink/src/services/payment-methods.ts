@@ -119,17 +119,24 @@ export async function updatePaymentMethod(
   input: UpdatePaymentMethodInput,
 ): Promise<PaymentMethod> {
   const { data, error } = await supabase
-    .from("payment_methods")
-    .update({
-      ...input,
-      updated_at: new Date().toISOString(),
+    .rpc("update_payment_method", {
+      p_payment_method_id: paymentMethodId,
+      p_brand: input.brand ?? null,
+      p_last_four: input.last_four ?? null,
+      p_expiry_month: input.expiry_month ?? null,
+      p_expiry_year: input.expiry_year ?? null,
     })
-    .eq("id", paymentMethodId)
-    .select("*")
     .single();
 
   if (error) {
-    throw toPaymentMethodError(error, "No se pudo actualizar la tarjeta.");
+    throw toPaymentMethodError(
+      error,
+      "No se pudo actualizar la tarjeta.",
+    );
+  }
+
+  if (!data) {
+    throw new Error("Supabase no devolvió la tarjeta actualizada.");
   }
 
   return data as PaymentMethod;
