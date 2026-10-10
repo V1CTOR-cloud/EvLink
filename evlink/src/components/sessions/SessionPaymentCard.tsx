@@ -109,8 +109,8 @@ export function SessionPaymentCard({ payment }: SessionPaymentCardProps) {
       </div>
 
       {payment.status === "pending" && (
-        <div className="flex items-center justify-between gap-4 border-t border-border bg-muted/30 px-5 py-4">
-          <div>
+        <div className="flex flex-col gap-3 border-t border-border bg-muted/30 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="min-w-0">
             <p className="text-sm font-medium">Pago pendiente</p>
 
             <p className="mt-1 text-xs text-muted-foreground">

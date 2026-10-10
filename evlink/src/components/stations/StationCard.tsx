@@ -100,7 +100,7 @@ export function StationCard({
   }
 
   return (
-    <div className="group rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30 hover:bg-primary/2">
+    <div className="group min-w-0 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30 hover:bg-primary/2">
       <Link href={`/stations/${station.id}`} className="block">
         <div className="flex items-start justify-between gap-3">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -131,7 +131,7 @@ export function StationCard({
           <p className="mb-2 text-[11px] text-muted-foreground">
             Conectores disponibles
           </p>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {availableConnectors.map((connector) => (
               <ConnectorItem key={connector.id} connector={connector} />
             ))}

@@ -75,7 +75,7 @@ export function ConnectorItem({ connector }: ConnectorItemProps) {
       type="button"
       onClick={handleStart}
       disabled={!user || loading}
-      className="flex flex-1 items-center justify-between rounded-md bg-muted px-2.5 py-2 text-left transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex min-h-11 flex-1 items-center justify-between gap-2 rounded-md bg-muted px-2.5 py-2 text-left transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <div className="flex items-center gap-1.5">
         <Zap className="size-3 text-primary" />

@@ -331,6 +331,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
                 aria-label="Vista de mapa"
                 aria-pressed={viewMode === "map"}
                 onClick={() => handleViewChange("map")}
+                className="h-10 min-w-10 px-2"
               >
                 <MapIcon className="size-4" />
                 <span className="sr-only sm:not-sr-only">Mapa</span>
@@ -342,6 +343,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
                 aria-label="Vista de lista"
                 aria-pressed={viewMode === "list"}
                 onClick={() => handleViewChange("list")}
+                className="h-10 min-w-10 px-2"
               >
                 <List className="size-4" />
                 <span className="sr-only sm:not-sr-only">Listado</span>

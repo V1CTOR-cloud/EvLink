@@ -18,7 +18,7 @@ import {
 import { routes } from "@/config/routes";
 
 export function AppSidebar() {
-  const { setOpen } = useSidebar();
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const pathname = usePathname();
 
   return (
@@ -50,13 +50,19 @@ export function AppSidebar() {
             <SidebarMenu className="gap-1">
               {routes.map((route) => {
                 const isActive = pathname === route.path;
+                const handleNavigation = () => {
+                  if (isMobile) {
+                    setOpenMobile(false);
+                  }
+                };
 
                 return (
                   <SidebarMenuItem key={route.label}>
                     <SidebarMenuButton
                       isActive={isActive}
                       render={<Link href={route.path} />}
-                      className="h-9 text-sm"
+                      className="h-10 text-sm"
+                      onClick={handleNavigation}
                     >
                       <route.icon className="size-4" />
                       <span>{route.label}</span>

@@ -87,7 +87,7 @@ export function SessionCard({ session }: SessionCardProps) {
           </div>
 
           {/* Connector and date */}
-          <div className="mt-2.5 flex items-center justify-between gap-2">
+          <div className="mt-2.5 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
               <BatteryCharging className="size-3.5 shrink-0" />
               <span className="truncate">
@@ -97,9 +97,11 @@ export function SessionCard({ session }: SessionCardProps) {
               </span>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground">
+            <div className="flex min-w-0 items-center gap-1 text-[10px] text-muted-foreground">
               <CalendarDays className="size-3" />
-              <span>{isActive ? `Iniciada ${formattedDate}` : formattedDate}</span>
+              <span className="break-words">
+                {isActive ? `Iniciada ${formattedDate}` : formattedDate}
+              </span>
               <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
           </div>
