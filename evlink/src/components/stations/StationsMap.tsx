@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
-maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
+maplibregl.setWorkerUrl(
+  new URL(
+    "maplibre-gl/dist/maplibre-gl-worker.mjs",
+    import.meta.url,
+  ).toString(),
+);
 import type { ChargingStationWithConnectors } from "@/types";
 
 type StationsMapProps = {
@@ -45,7 +50,9 @@ export function StationsMap({
   const onSelectRef = useRef(onSelectStation);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  onSelectRef.current = onSelectStation;
+  useEffect(() => {
+    onSelectRef.current = onSelectStation;
+  }, [onSelectStation]);
 
   // Inicializamos el mapa una sola vez.
   useEffect(() => {
@@ -114,8 +121,6 @@ export function StationsMap({
         onSelectRef.current(station.id);
       });
 
-      
-
       const marker = new maplibregl.Marker({
         element,
         anchor: "center",
@@ -165,14 +170,14 @@ export function StationsMap({
 
   if (!hasValidStations) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-2xl border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+      <div className="flex min-h-100 items-center justify-center rounded-2xl border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
         No hay estaciones con coordenadas válidas para mostrar en el mapa.
       </div>
     );
   }
 
   return (
-    <div className="relative h-[450px] w-full overflow-hidden rounded-2xl border border-border shadow-sm sm:h-[550px] md:h-[650px] lg:h-[800px]">
+    <div className="relative h-112.5 w-full overflow-hidden rounded-2xl border border-border shadow-sm sm:h-137.5 md:h-162.5 lg:h-200">
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );

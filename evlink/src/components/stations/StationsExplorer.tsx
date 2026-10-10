@@ -56,7 +56,9 @@ function normalizeSearchText(value: string) {
 }
 
 function getNumericRange(values: number[]): NumericRange {
-  const validValues = values.filter((value) => Number.isFinite(value) && value >= 0);
+  const validValues = values.filter(
+    (value) => Number.isFinite(value) && value >= 0,
+  );
 
   if (validValues.length === 0) {
     return { min: null, max: null };
@@ -72,8 +74,10 @@ function matchesConnectorFilters(
   connector: Connector,
   filters: StationFiltersState,
 ) {
-  if (filters.connectorTypes.length > 0 &&
-      !filters.connectorTypes.includes(connector.connector_type)) {
+  if (
+    filters.connectorTypes.length > 0 &&
+    !filters.connectorTypes.includes(connector.connector_type)
+  ) {
     return false;
   }
 
@@ -107,8 +111,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] =
-    useState<StationFiltersState>(defaultFilters);
+  const [filters, setFilters] = useState<StationFiltersState>(defaultFilters);
 
   const connectorTypes = useMemo(() => {
     const types = new Set<Connector["connector_type"]>();
@@ -139,9 +142,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
   const powerRange = useMemo(
     () =>
       getNumericRange(
-        availableConnectors.map((connector) =>
-          connector.power_kw,
-        ),
+        availableConnectors.map((connector) => connector.power_kw),
       ),
     [availableConnectors],
   );
@@ -149,9 +150,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
   const priceRange = useMemo(
     () =>
       getNumericRange(
-        availableConnectors.map((connector) =>
-          connector.price_per_kwh,
-        ),
+        availableConnectors.map((connector) => connector.price_per_kwh),
       ),
     [availableConnectors],
   );
@@ -176,9 +175,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
 
     return stations.filter((station) => {
       const searchableText = normalizeSearchText(
-        [station.name, station.address, station.city]
-          .filter(Boolean)
-          .join(" "),
+        [station.name, station.address, station.city].filter(Boolean).join(" "),
       );
 
       if (!searchableText.includes(normalizedSearch)) {
@@ -356,11 +353,49 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
 
       {filteredStations.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
-          <p className="text-sm font-medium">
-            {stations.length === 0
-              ? "No hay estaciones disponibles."
-              : "No se encontraron estaciones."}
-          </p>
+          {stations.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-8 text-center">
+              <p className="text-sm font-medium">
+                No hay estaciones disponibles.
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Cuando haya estaciones registradas, aparecerán aquí.
+              </p>
+            </div>
+          ) : filteredStations.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-8 text-center">
+              <p className="text-sm font-medium">
+                No se encontraron estaciones.
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Cambia la búsqueda o los filtros para ver más estaciones.
+              </p>
+              {hasActiveFilters && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={clearFilters}
+                  className="mt-3"
+                >
+                  <RotateCcw className="size-4" />
+                  Limpiar filtros
+                </Button>
+              )}
+            </div>
+          ) : viewMode === "map" ? (
+            <div className="min-h-0 flex-1">
+              <StationsMap
+                stations={filteredStations}
+                selectedStationId={selectedStationId}
+                onSelectStation={handleSelectStation}
+              />
+            </div>
+          ) : (
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <StationsList stations={filteredStations} />
+            </div>
+          )}
+
           {stations.length > 0 && hasActiveFilters && (
             <>
               <p className="mt-1 text-sm text-muted-foreground">

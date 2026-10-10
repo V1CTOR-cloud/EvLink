@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
-import { ChargingStationWithConnectors, getChargingStations } from "@/services/charging-stations";
+import { getChargingStations } from "@/services/charging-stations";
+import { ChargingStationWithConnectors } from "@/types";
 
 export function useChargingStations() {
   const [stations, setStations] = useState<ChargingStationWithConnectors[]>([]);

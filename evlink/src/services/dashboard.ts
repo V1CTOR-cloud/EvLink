@@ -74,9 +74,14 @@ export async function getDashboardStats(
       .select(`
         id,
         name,
+        description,
         address,
         city,
+        latitude,
+        longitude,
         status,
+        created_at,
+        updated_at,
         connectors (
           id,
           station_id,

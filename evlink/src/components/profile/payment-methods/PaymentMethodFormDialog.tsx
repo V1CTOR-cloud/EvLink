@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { CreditCard, LoaderCircle, ShieldCheck, Sparkles } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function PaymentMethodFormDialog({
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors },
   } = useForm<PaymentMethodFormData>({
     resolver: zodResolver(paymentMethodSchema),
@@ -63,10 +63,15 @@ export function PaymentMethodFormDialog({
     },
   });
 
-  const previewBrand = watch("brand") ?? "visa";
-  const previewLastFour = watch("last_four") ?? "";
-  const previewMonth = watch("expiry_month") ?? new Date().getMonth() + 1;
-  const previewYear = watch("expiry_year") ?? new Date().getFullYear() + 1;
+  const [previewBrand, previewLastFour, previewMonth, previewYear] = useWatch({
+    control,
+    name: ["brand", "last_four", "expiry_month", "expiry_year"],
+  });
+
+  const brand = previewBrand ?? "visa";
+  const lastFour = previewLastFour ?? "";
+  const month = previewMonth ?? new Date().getMonth() + 1;
+  const year = previewYear ?? new Date().getFullYear() + 1;
 
   useEffect(() => {
     reset(
@@ -120,10 +125,10 @@ export function PaymentMethodFormDialog({
 
             <div className="relative mx-auto w-full max-w-lg space-y-5">
               <PaymentCardVisual
-                brand={previewBrand}
-                last_four={previewLastFour}
-                expiry_month={previewMonth}
-                expiry_year={previewYear}
+                brand={brand}
+                last_four={lastFour}
+                expiry_month={month}
+                expiry_year={year}
                 is_default={method?.is_default ?? false}
                 preview
               />
@@ -180,9 +185,9 @@ export function PaymentMethodFormDialog({
                   {...register("brand")}
                   className="flex h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20"
                 >
-                  {paymentBrands.map((brand) => (
-                    <option key={brand} value={brand}>
-                      {brandLabels[brand]}
+                  {paymentBrands.map((brandOption) => (
+                    <option key={brandOption} value={brandOption}>
+                      {brandLabels[brandOption]}
                     </option>
                   ))}
                 </select>
@@ -231,9 +236,9 @@ export function PaymentMethodFormDialog({
                     className="flex h-11 w-full rounded-xl border border-input bg-background px-3 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20"
                   >
                     {Array.from({ length: 12 }, (_, index) => index + 1).map(
-                      (month) => (
-                        <option key={month} value={month}>
-                          {String(month).padStart(2, "0")}
+                      (monthOption) => (
+                        <option key={monthOption} value={monthOption}>
+                          {String(monthOption).padStart(2, "0")}
                         </option>
                       ),
                     )}

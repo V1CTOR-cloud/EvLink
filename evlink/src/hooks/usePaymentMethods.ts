@@ -40,8 +40,6 @@ export function usePaymentMethods(userId?: string) {
   const [supabase] = useState(() => createClient());
   const mountedRef = useRef(false);
   const mutationInFlightRef = useRef(false);
-  const userIdRef = useRef(userId);
-  userIdRef.current = userId;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -109,22 +107,6 @@ export function usePaymentMethods(userId?: string) {
     },
     [userId],
   );
-
-  const refreshPaymentMethods = useCallback(async () => {
-    if (!userId) return;
-
-    const paymentMethods = await getPaymentMethods(supabase);
-
-    if (!mountedRef.current || userIdRef.current !== userId) {
-      return;
-    }
-
-    setState({
-      userId,
-      paymentMethods: sortPaymentMethods(paymentMethods),
-      error: null,
-    });
-  }, [supabase, userId]);
 
   const runMutation = useCallback(
     async <T,>(operation: () => Promise<T>): Promise<T> => {

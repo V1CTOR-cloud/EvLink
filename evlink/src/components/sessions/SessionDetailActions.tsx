@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -8,21 +9,65 @@ import { Button } from "@/components/ui/button";
 import { StopChargingDialog } from "./StopChargingDialog";
 import { useCreatePayment } from "@/hooks/useCreatePayment";
 import { useProcessPayment } from "@/hooks/useProcessPayment";
+import { usePaymentMethods } from "@/hooks/usePaymentMethods";
+import { useAuth } from "@/hooks/useAuth";
 import type { ChargingSession } from "@/types";
 
 type SessionDetailActionsProps = {
   sessionId: string;
 };
 
-export function SessionDetailActions({ sessionId }: SessionDetailActionsProps) {
+export function SessionDetailActions({
+  sessionId,
+}: SessionDetailActionsProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  const { create, loading: creatingPayment } = useCreatePayment();
+  const { user } = useAuth();
 
+  const {
+    paymentMethods,
+    loading: loadingPaymentMethods,
+    error: paymentMethodsError,
+    retry,
+  } = usePaymentMethods(user?.id);
+
+  const { create, loading: creatingPayment } = useCreatePayment();
   const { process, loading: processingPayment } = useProcessPayment();
 
   const paymentLoading = creatingPayment || processingPayment;
+
+  const hasDefaultPaymentMethod = paymentMethods.some(
+    (paymentMethod) => paymentMethod.is_default,
+  );
+
+  const handleOpenDialog = () => {
+    if (!user) {
+      toast.error("Debes iniciar sesión para finalizar la carga.");
+      return;
+    }
+
+    if (loadingPaymentMethods) {
+      toast.info("Estamos comprobando tus métodos de pago.");
+      return;
+    }
+
+    if (paymentMethodsError) {
+      toast.error(
+        "No se han podido comprobar tus tarjetas. Inténtalo de nuevo.",
+      );
+      return;
+    }
+
+    if (!hasDefaultPaymentMethod) {
+      toast.error(
+        "Necesitas una tarjeta predeterminada para finalizar y pagar la sesión.",
+      );
+      return;
+    }
+
+    setOpen(true);
+  };
 
   const handleSessionUpdated = async (session: ChargingSession) => {
     let paymentCreated = false;
@@ -60,11 +105,32 @@ export function SessionDetailActions({ sessionId }: SessionDetailActionsProps) {
       <Button
         type="button"
         variant="destructive"
-        onClick={() => setOpen(true)}
-        disabled={paymentLoading}
+        onClick={handleOpenDialog}
+        disabled={
+          paymentLoading ||
+          loadingPaymentMethods ||
+          Boolean(paymentMethodsError) ||
+          !user
+        }
       >
         Finalizar carga
       </Button>
+
+      {paymentMethodsError && (
+        <div className="mt-2">
+          <p className="text-sm text-destructive">
+            No se han podido cargar tus tarjetas.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={retry}
+          >
+            Reintentar
+          </Button>
+        </div>
+      )}
 
       <StopChargingDialog
         sessionId={sessionId}

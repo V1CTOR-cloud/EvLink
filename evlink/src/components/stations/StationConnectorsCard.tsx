@@ -42,13 +42,11 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
     try {
       const session = await startCharging(user.id, connectorId, pricePerKwh);
 
-      console.log("[StationConnectorsCard] Sesión:", session);
-
       if (!session?.id) {
         throw new Error("La sesión se ha creado, pero no tiene un ID válido.");
       }
 
-      window.location.assign(`/sessions/${session.id}`);
+      router.push(`/sessions/${session.id}`);
     } catch (error) {
       console.error("[StationConnectorsCard] Error:", error);
 
