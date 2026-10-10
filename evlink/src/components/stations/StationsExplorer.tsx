@@ -353,64 +353,28 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
 
       {filteredStations.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
-          {stations.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-8 text-center">
-              <p className="text-sm font-medium">
-                No hay estaciones disponibles.
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Cuando haya estaciones registradas, aparecerán aquí.
-              </p>
-            </div>
-          ) : filteredStations.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-8 text-center">
-              <p className="text-sm font-medium">
-                No se encontraron estaciones.
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Cambia la búsqueda o los filtros para ver más estaciones.
-              </p>
-              {hasActiveFilters && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={clearFilters}
-                  className="mt-3"
-                >
-                  <RotateCcw className="size-4" />
-                  Limpiar filtros
-                </Button>
-              )}
-            </div>
-          ) : viewMode === "map" ? (
-            <div className="min-h-0 flex-1">
-              <StationsMap
-                stations={filteredStations}
-                selectedStationId={selectedStationId}
-                onSelectStation={handleSelectStation}
-              />
-            </div>
-          ) : (
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <StationsList stations={filteredStations} />
-            </div>
-          )}
+          <p className="text-sm font-medium">
+            {stations.length === 0
+              ? "No hay estaciones registradas."
+              : "No se encontraron estaciones."}
+          </p>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            {stations.length === 0
+              ? "Cuando haya estaciones registradas, aparecerán aquí."
+              : "Cambia la búsqueda o los filtros para ver más estaciones."}
+          </p>
 
           {stations.length > 0 && hasActiveFilters && (
-            <>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Cambia la búsqueda o los filtros para ver más estaciones.
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={clearFilters}
-                className="mt-3"
-              >
-                <RotateCcw className="size-4" />
-                Limpiar filtros
-              </Button>
-            </>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={clearFilters}
+              className="mt-3"
+            >
+              <RotateCcw className="size-4" />
+              Limpiar filtros
+            </Button>
           )}
         </div>
       ) : viewMode === "map" ? (

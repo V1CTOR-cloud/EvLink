@@ -16,11 +16,18 @@ export default function RegisterPage() {
     try {
       await registerUser(data.email, data.password, data.fullName);
 
-      toast.success("Cuenta creada correctamente");
+      toast.success(
+        "Cuenta creada correctamente. Revisa tu correo si necesitas confirmarla.",
+      );
 
-      router.push("/");
-    } catch {
-      toast.error("No se pudo crear la cuenta");
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Error al registrar la cuenta:", error);
+
+      toast.error(
+        error instanceof Error ? error.message : "No se pudo crear la cuenta",
+      );
     }
   };
 
