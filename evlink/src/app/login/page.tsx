@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { BatteryCharging, MapPin, Zap } from "lucide-react";
+import { Plug, MapPin, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex size-9 items-center justify-center rounded-full bg-primary/15">
-                  <BatteryCharging className="size-4 text-primary" />
+                  <Plug className="size-4 text-primary" />
                 </div>
               </div>
 

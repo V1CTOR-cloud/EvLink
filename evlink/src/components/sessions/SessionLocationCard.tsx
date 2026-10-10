@@ -1,8 +1,4 @@
-import {
-  BatteryCharging,
-  MapPin,
-  Zap,
-} from "lucide-react";
+import { Plug, MapPin, Zap } from "lucide-react";
 
 import type { ChargingSessionDetail } from "@/types";
 
@@ -19,18 +15,14 @@ const connectorLabels: Record<
   chademo: "CHAdeMO",
 };
 
-export function SessionLocationCard({
-  session,
-}: SessionLocationCardProps) {
+export function SessionLocationCard({ session }: SessionLocationCardProps) {
   const { connector } = session;
   const { station } = connector;
 
   return (
     <section className="rounded-xl border border-border bg-card">
       <div className="border-b border-border px-5 py-4">
-        <h2 className="text-sm font-semibold">
-          Ubicación de la carga
-        </h2>
+        <h2 className="text-sm font-semibold">Ubicación de la carga</h2>
 
         <p className="mt-1 text-xs text-muted-foreground">
           Estación y conector utilizados
@@ -45,21 +37,15 @@ export function SessionLocationCard({
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">
-                Estación
-              </p>
+              <p className="text-xs text-muted-foreground">Estación</p>
 
-              <p className="mt-1 font-medium">
-                {station.name}
-              </p>
+              <p className="mt-1 font-medium">{station.name}</p>
 
               <p className="mt-1 text-sm text-muted-foreground">
                 {station.address}
               </p>
 
-              <p className="text-sm text-muted-foreground">
-                {station.city}
-              </p>
+              <p className="text-sm text-muted-foreground">{station.city}</p>
             </div>
           </div>
         </div>
@@ -67,13 +53,11 @@ export function SessionLocationCard({
         <div className="p-5">
           <div className="flex items-start gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-              <BatteryCharging className="size-4 text-muted-foreground" />
+              <Plug className="size-4 text-muted-foreground" />
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground">
-                Conector
-              </p>
+              <p className="text-xs text-muted-foreground">Conector</p>
 
               <p className="mt-1 font-medium">
                 {connectorLabels[connector.connector_type]}
@@ -82,9 +66,7 @@ export function SessionLocationCard({
               <div className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Zap className="size-3.5" />
 
-                <span>
-                  {connector.power_kw} kW
-                </span>
+                <span>{connector.power_kw} kW</span>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BatteryCharging, MapPin } from "lucide-react";
+import { ArrowUpRight, Plug, MapPin } from "lucide-react";
 
 import type { DashboardActiveSession } from "@/types";
 import Link from "next/link";
@@ -47,7 +47,7 @@ export function ActiveSessionCard({ session }: ActiveSessionCardProps) {
 
         <div className="flex items-start gap-3">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-            <BatteryCharging className="size-4 text-primary" />
+            <Plug className="size-4 text-primary" />
           </div>
 
           <div>
