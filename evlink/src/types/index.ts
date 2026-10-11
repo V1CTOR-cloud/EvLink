@@ -59,6 +59,7 @@ export type DashboardStats = {
     activeSessionsCount: number;
     totalEnergy: number;
     totalSpent: number;
+    totalStations: number;
     activeSessions: DashboardActiveSession[];
     stations: ChargingStationWithConnectors[];
     history: DashboardSeriesPoint[];

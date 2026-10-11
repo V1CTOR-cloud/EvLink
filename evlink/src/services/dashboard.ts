@@ -189,11 +189,14 @@ export async function getDashboardStats(
     0,
   );
 
+  const totalStations = (stationsResult.data ?? []).length;
+
   return {
     availableStations,
     activeSessionsCount: activeSessionsResult.count ?? 0,
     totalEnergy,
     totalSpent,
+    totalStations,
     activeSessions,
     stations,
     history: buildDailySeries(completedSessions),
