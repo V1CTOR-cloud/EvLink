@@ -1,46 +1,61 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  AlertCircle,
-  LayoutDashboard,
-  LoaderCircle,
-  MapPin,
-  Plug,
-  Search,
-} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandDialog,
-  CommandEmpty,
-  CommandGroup,
   CommandInput,
-  CommandItem,
-  CommandList,
 } from "@/components/ui/command";
 import { routes } from "@/config/routes";
+import { adminRoutes } from "@/config/admin-routes";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { useGlobalSearch } from "@/hooks/useGlobalSearch";
 import { connectorTypeLabels, sessionStatusLabels } from "@/lib/session-utils";
 import { formatDate } from "@/lib/format-date";
 import type { SearchResult } from "@/types";
 
-const searchableRoutes = routes.filter((route) =>
-  ["/", "/stations", "/sessions"].includes(route.path),
-);
+import { GlobalSearchTrigger } from "./GlobalSearchTrigger";
+import { GlobalSearchResults } from "./GlobalSearchResults";
+
+const publicSearchablePaths = ["/", "/stations", "/sessions"];
+
+type SearchableRoute = (typeof routes)[number] & {
+  section: "general" | "admin";
+};
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+
   const { user } = useAuth();
+  const { profile } = useProfile(user?.id);
   const router = useRouter();
+
   const { stations, sessions, loading, error, retry } = useGlobalSearch(
     open,
     user?.id,
   );
+
+  const isAdmin = profile?.role === "admin";
+
+  const searchableRoutes: SearchableRoute[] = [
+    ...routes
+      .filter((route) => publicSearchablePaths.includes(route.path))
+      .map((route) => ({
+        ...route,
+        section: "general" as const,
+      })),
+    ...(isAdmin
+      ? adminRoutes.map((route) => ({
+          ...route,
+          section: "admin" as const,
+        }))
+      : []),
+  ];
 
   const pageResults: SearchResult[] = searchableRoutes.map((route) => ({
     id: route.path,
@@ -49,13 +64,27 @@ export function GlobalSearch() {
     href: route.path,
   }));
 
-  const stationResults: SearchResult[] = stations.map((station) => ({
-    id: station.id,
-    title: station.name,
-    subtitle: `${station.city} · ${station.address}`,
-    type: "station",
-    href: `/stations/${station.id}`,
-  }));
+  const stationResults: SearchResult[] = stations.flatMap((station) => {
+    const results: SearchResult[] = [
+      {
+        id: `general-${station.id}`,
+        title: station.name,
+        type: "station",
+        href: `/stations/${station.id}`,
+      },
+    ];
+
+    if (isAdmin) {
+      results.push({
+        id: `admin-${station.id}`,
+        title: station.name,
+        type: "station",
+        href: `/admin/stations/${station.id}`,
+      });
+    }
+
+    return results;
+  });
 
   const sessionResults: SearchResult[] = sessions.map((session) => ({
     id: session.id,
@@ -86,7 +115,10 @@ export function GlobalSearch() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "k"
+      ) {
         event.preventDefault();
         setOpen((currentOpen) => !currentOpen);
         setQuery("");
@@ -100,38 +132,9 @@ export function GlobalSearch() {
     };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const isSearchShortcut =
-        (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
-
-      if (!isSearchShortcut) {
-        return;
-      }
-
-      event.preventDefault();
-      handleOpenChange(!open);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
-
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => handleOpenChange(true)}
-        aria-label="Abrir buscador global"
-        className="h-10 w-[clamp(7rem,24vw,15rem)] justify-start gap-2 px-2 text-muted-foreground sm:px-3"
-      >
-        <Search className="size-4 shrink-0" />
-        <span className="truncate">Buscar...</span>
-      </Button>
+      <GlobalSearchTrigger onClick={() => handleOpenChange(true)} />
 
       <CommandDialog
         open={open}
@@ -146,101 +149,18 @@ export function GlobalSearch() {
             onValueChange={setQuery}
             placeholder="Buscar páginas, estaciones o sesiones..."
           />
-          <CommandList>
-            {loading ? (
-              <div className="flex items-center justify-center gap-2 p-6 text-sm text-muted-foreground">
-                <LoaderCircle className="size-4 animate-spin" />
-                Cargando resultados...
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center gap-3 p-6 text-center">
-                <div className="flex items-center gap-2 text-sm text-destructive">
-                  <AlertCircle className="size-4" />
-                  No se pudieron cargar los resultados.
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={retry}
-                >
-                  Reintentar
-                </Button>
-              </div>
-            ) : !query.trim() ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Escribe para buscar páginas, estaciones o sesiones.
-              </p>
-            ) : (
-              <>
-                <CommandEmpty>No se encontraron resultados.</CommandEmpty>
 
-                <CommandGroup heading="Páginas">
-                  {pageResults.map((result) => {
-                    const Icon =
-                      searchableRoutes.find(
-                        (route) => route.path === result.href,
-                      )?.icon ?? LayoutDashboard;
-
-                    return (
-                      <CommandItem
-                        key={`page-${result.id}`}
-                        value={result.title}
-                        onSelect={() => handleSelect(result)}
-                      >
-                        <Icon className="text-muted-foreground" />
-                        <span>{result.title}</span>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-
-                {stationResults.length > 0 && (
-                  <CommandGroup heading="Estaciones">
-                    {stationResults.map((result) => (
-                      <CommandItem
-                        key={`station-${result.id}`}
-                        value={result.title}
-                        onSelect={() => handleSelect(result)}
-                      >
-                        <MapPin className="text-muted-foreground" />
-                        <span className="min-w-0 flex-1 truncate">
-                          {result.title}
-                        </span>
-                        {result.subtitle && (
-                          <span className="ml-auto truncate text-xs text-muted-foreground">
-                            {result.subtitle}
-                          </span>
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                )}
-
-                {sessionResults.length > 0 && (
-                  <CommandGroup heading="Sesiones">
-                    {sessionResults.map((result) => (
-                      <CommandItem
-                        key={`session-${result.id}`}
-                        value={`${result.title} ${result.subtitle ?? ""}`}
-                        onSelect={() => handleSelect(result)}
-                      >
-                        <Plug className="text-muted-foreground" />
-                        <span className="min-w-0 flex-1 truncate">
-                          {result.title}
-                        </span>
-                        {result.subtitle && (
-                          <span className="ml-auto truncate text-xs text-muted-foreground">
-                            {result.subtitle}
-                          </span>
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                )}
-              </>
-            )}
-          </CommandList>
+          <GlobalSearchResults
+            query={query}
+            loading={loading}
+            error={error}
+            retry={retry}
+            routes={searchableRoutes}
+            pages={pageResults}
+            stations={stationResults}
+            sessions={sessionResults}
+            onSelect={handleSelect}
+          />
         </Command>
       </CommandDialog>
     </>

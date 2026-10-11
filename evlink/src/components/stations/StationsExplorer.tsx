@@ -13,9 +13,9 @@ import {
   type NumericRange,
   type StationFiltersState,
 } from "@/components/stations/StationFilters";
-import { StationsList } from "@/components/stations/StationsList";
 import type { ChargingStationWithConnectors, Connector } from "@/types";
 import { connectorTypeLabels } from "@/lib/session-utils";
+import { StationTable } from "./StationsTable";
 
 const StationsMap = dynamic(
   () =>
@@ -389,7 +389,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <StationsList stations={filteredStations} />
+          <StationTable stations={filteredStations} />
         </div>
       )}
     </div>
