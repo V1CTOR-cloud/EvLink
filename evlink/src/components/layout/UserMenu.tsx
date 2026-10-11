@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useRouter } from "next/navigation";
+import { getInitials } from "@/lib/utils";
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -33,13 +34,6 @@ export function UserMenu() {
   const email = user?.email ?? "Usuario";
   const name = profile?.full_name || email;
 
-  const initials = name
-    .split(" ")
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -50,7 +44,7 @@ export function UserMenu() {
           >
             <Avatar className="size-7.5">
               <AvatarFallback className="bg-primary text-xs font-medium text-primary-foreground">
-                {initials || <User className="size-4" />}
+                {getInitials(name) || <User className="size-4" />}
               </AvatarFallback>
             </Avatar>
 
@@ -70,7 +64,11 @@ export function UserMenu() {
       >
         <div className="px-3 py-2">
           <div className="flex items-center gap-1">
-            {profile?.role == "admin" ? <UserStar size={16} /> : <Car size={16} />}
+            {profile?.role == "admin" ? (
+              <UserStar size={16} />
+            ) : (
+              <Car size={16} />
+            )}
             <p className="truncate text-sm font-medium">
               {loading ? "Cargando..." : name}
             </p>
