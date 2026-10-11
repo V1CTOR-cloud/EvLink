@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/format-date";
 import { cn, getInitials } from "@/lib/utils";
 import type { AdminUser } from "@/services/admin-users";
 import { AdminUserDeleteAction } from "./AdminDeleteAction";
+import { USER_DELETION_ENABLED } from "@/config/admin-user-permissions";
 
 type AdminUsersTableProps = {
   users: AdminUser[];
@@ -18,6 +19,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="overflow-x-auto">
         <table className="w-full min-w-170 text-sm">
+          <caption className="sr-only">Lista de usuarios</caption>
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className={headerClasses}>Usuario</th>
@@ -94,7 +96,7 @@ export function AdminUsersTable({ users }: AdminUsersTableProps) {
 
                   <td className="px-3 py-3.5">
                     <div className="flex items-center justify-end gap-1">
-                      <AdminUserDeleteAction user={user} enabled />
+                      <AdminUserDeleteAction user={user} enabled={USER_DELETION_ENABLED} />
 
                       <ArrowUpRight className="pointer-events-none size-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
                     </div>

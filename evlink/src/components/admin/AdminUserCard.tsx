@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/format-date";
 import { cn, getInitials } from "@/lib/utils";
 import type { AdminUser } from "@/services/admin-users";
 import { AdminUserDeleteAction } from "./AdminDeleteAction";
+import { USER_DELETION_ENABLED } from "@/config/admin-user-permissions";
 
 interface AdminUserCardProps {
   user: AdminUser;
@@ -73,7 +74,7 @@ export default function AdminUserCard({ user }: AdminUserCardProps) {
             {formatDate(user.created_at)}
           </span>
 
-          <AdminUserDeleteAction user={user} enabled />
+          <AdminUserDeleteAction user={user} enabled={USER_DELETION_ENABLED} />
         </div>
       </div>
     </div>

@@ -6,8 +6,8 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { profileSchema } from "@/schemas/profile";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const USER_DELETION_ENABLED = true;
+import { USER_DELETION_ENABLED } from "@/config/admin-user-permissions";
+import { createClient as createPasswordVerifier } from "@supabase/supabase-js";
 
 export type AdminUserActionState = {
   error?: string;
@@ -111,37 +111,72 @@ export async function updateAdminUserProfile(
   }
 }
 
+
 export async function updateAdminUserRole(
   userId: string,
   _prevState: AdminUserRoleActionState,
   formData: FormData,
 ): Promise<AdminUserRoleActionState> {
-  const role = formData.get("role");
   const parsedInput = z
     .object({
       userId: userIdSchema,
       role: userRoleSchema,
+      password: z.string().min(1, "Introduce tu contraseña."),
     })
     .safeParse({
       userId: userId.trim(),
-      role,
+      role: formData.get("role"),
+      password: formData.get("password"),
     });
 
   if (!parsedInput.success) {
     return { error: "Los datos proporcionados no son válidos." };
   }
 
-  const { supabase } = await requireAdmin();
+  const { supabase, user } = await requireAdmin();
+
+  if (!user.email) {
+    return {
+      error: "No se puede verificar la contraseña de esta cuenta.",
+    };
+  }
 
   try {
-    const { data, error } = await supabase.rpc("admin_update_user_role", {
-      p_user_id: parsedInput.data.userId,
-      p_role: parsedInput.data.role,
-    });
+    // Cliente aislado: no modifica la sesión del administrador actual.
+    const passwordVerifier = createPasswordVerifier(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+      },
+    );
+
+    const { error: passwordError } =
+      await passwordVerifier.auth.signInWithPassword({
+        email: user.email,
+        password: parsedInput.data.password,
+      });
+
+    if (passwordError) {
+      return {
+        error: "No se ha podido verificar la contraseña del administrador.",
+      };
+    }
+
+    const { data, error } = await supabase.rpc(
+      "admin_update_user_role",
+      {
+        p_user_id: parsedInput.data.userId,
+        p_role: parsedInput.data.role,
+      },
+    );
 
     if (error) {
       console.error("Error updating admin user role:", error);
-
       return { error: getErrorMessage(error) };
     }
 
@@ -163,6 +198,7 @@ export async function updateAdminUserRole(
     };
   }
 }
+
 
 export async function updateAdminUserStatus(
   userId: string,

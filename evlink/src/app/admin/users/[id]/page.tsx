@@ -6,23 +6,18 @@ import { z } from "zod";
 import { AdminUserDeleteAction } from "@/components/admin/AdminDeleteAction";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { getInitials } from "@/lib/utils";
+import { formatDate } from "@/lib/format-date";
+import { cn, getInitials } from "@/lib/utils";
 import { getAdminUser } from "@/services/admin-users";
 import { UserProfileForm } from "./UserProfileForm";
 import { AccountManagement } from "@/components/admin/AccountManagement";
+import { USER_DELETION_ENABLED } from "@/config/admin-user-permissions";
 
 type AdminUserDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
 const userIdSchema = z.uuid();
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("es-ES", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 export default async function AdminUserDetailPage({
   params,
@@ -51,15 +46,18 @@ export default async function AdminUserDetailPage({
       value: <span className="break-all font-mono text-xs">{user.id}</span>,
     },
     { label: "Rol", value: roleLabel },
-    { label: "Fecha de registro", value: formatDate(user.created_at) },
+    {
+      label: "Fecha de registro",
+      value: formatDate(user.created_at) ?? "Sin fecha",
+    },
     {
       label: "Última actualización",
-      value: user.updated_at ? formatDate(user.updated_at) : "Sin actualizar",
+      value: formatDate(user.updated_at) ?? "Sin actualizar",
     },
   ];
 
   return (
-    <section className="p-6">
+    <section className="p-4 sm:p-6">
       <div className="mx-auto max-w-5xl space-y-10">
         <div className="space-y-4">
           <Link
@@ -83,8 +81,15 @@ export default async function AdminUserDetailPage({
 
         <div className="border-b border-border pb-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-            <Avatar className="size-20 shrink-0">
-              <AvatarFallback className="bg-primary text-xl font-semibold text-primary-foreground">
+            <Avatar className="size-16 shrink-0">
+              <AvatarFallback
+                className={cn(
+                  "text-lg font-semibold",
+                  isAdmin
+                    ? "bg-primary/15 text-foreground ring-1 ring-primary/40"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
                 {getInitials(user.full_name)}
               </AvatarFallback>
             </Avatar>
@@ -94,17 +99,18 @@ export default async function AdminUserDetailPage({
                 {name}
               </h2>
 
-              <div className="mt-1 flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-primary/10">
-                    <RoleIcon className="size-3 text-primary" />
-                  </span>
-
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+                    isAdmin
+                      ? "bg-green-500/10 text-green-600"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  <RoleIcon className="size-3.5" aria-hidden="true" />
                   {roleLabel}
                 </span>
-
-                <span className="hidden text-border sm:block">•</span>
-
                 <span title={user.id} className="font-mono text-xs">
                   {user.id.slice(0, 8)}
                 </span>
@@ -203,6 +209,7 @@ export default async function AdminUserDetailPage({
                 user={user}
                 variant="button"
                 redirectTo="/admin/users"
+                enabled={USER_DELETION_ENABLED}
               />
             </div>
           </div>

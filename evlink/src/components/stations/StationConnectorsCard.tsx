@@ -79,6 +79,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
             {station.connectors.map((connector) => {
               const isAvailable = connector.status === "available";
               const isOccupied = connector.status === "occupied";
+              const isMaintenance = connector.status === "maintenance";
 
               const content = (
                 <>
@@ -116,7 +117,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium",
                         isAvailable
                           ? "bg-primary/10 text-primary"
-                          : isOccupied
+                          : isOccupied || isMaintenance
                             ? "bg-yellow-500/10 text-yellow-600"
                             : "bg-muted text-muted-foreground",
                       ].join(" ")}
@@ -126,7 +127,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                           "size-1.5 rounded-full",
                           isAvailable
                             ? "bg-primary"
-                            : isOccupied
+                            : isOccupied || isMaintenance
                               ? "bg-yellow-500"
                               : "bg-muted-foreground",
                         ].join(" ")}
@@ -136,7 +137,9 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                         ? "Disponible"
                         : isOccupied
                           ? "Ocupado"
-                          : "Fuera de servicio"}
+                          : isMaintenance
+                            ? "Mantenimiento"
+                            : "Fuera de servicio"}
                     </span>
                   </div>
 

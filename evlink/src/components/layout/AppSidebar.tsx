@@ -3,10 +3,6 @@
 import {
   Zap,
   LayoutDashboard,
-  MapPin,
-  Users,
-  Activity,
-  CreditCard,
   ArrowLeft,
   ShieldCheck,
 } from "lucide-react";
@@ -26,17 +22,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import { routes } from "@/config/routes";
+import { adminRoutes } from "@/config/admin-routes";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { cn } from "@/lib/utils";
-
-const adminRoutes = [
-  { path: "/admin", label: "Resumen", icon: LayoutDashboard },
-  { path: "/admin/stations", label: "Estaciones", icon: MapPin },
-  { path: "/admin/users", label: "Usuarios", icon: Users },
-  { path: "/admin/sessions", label: "Sesiones", icon: Activity },
-  { path: "/admin/payments", label: "Pagos", icon: CreditCard },
-];
 
 export function AppSidebar() {
   const { setOpen, isMobile, setOpenMobile } = useSidebar();

@@ -70,7 +70,7 @@ export function AdminUserFilters({
     <>
       <Button
         type="button"
-        variant={activeFilterCount > 0 ? "secondary" : "outline"}
+        variant="outline"
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => onOpenChange(true)}
@@ -79,7 +79,7 @@ export function AdminUserFilters({
         <SlidersHorizontal className="size-4" />
         Filtros
         {activeFilterCount > 0 && (
-          <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+          <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-foreground">
             {activeFilterCount}
           </span>
         )}
@@ -109,7 +109,7 @@ export function AdminUserFilters({
                       onClick={() => onRoleChange(filter.value)}
                       className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                         selected
-                          ? "border-primary bg-primary text-primary-foreground"
+                          ? "border-primary/30 bg-primary/10 text-foreground"
                           : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                     >
@@ -117,7 +117,7 @@ export function AdminUserFilters({
                       <span
                         className={
                           selected
-                            ? "rounded-full bg-primary-foreground/15 px-1.5 tabular-nums"
+                            ? "rounded-full bg-primary/15 px-1.5 tabular-nums text-foreground"
                             : "rounded-full bg-muted px-1.5 tabular-nums"
                         }
                       >

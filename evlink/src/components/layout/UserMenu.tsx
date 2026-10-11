@@ -41,10 +41,16 @@ export function UserMenu() {
         render={
           <button
             type="button"
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Avatar className="size-7.5">
-              <AvatarFallback className="bg-primary text-xs font-medium text-primary-foreground">
+              <AvatarFallback
+                className={
+                  profile?.role === "admin"
+                    ? "bg-primary/15 text-xs font-medium text-foreground ring-1 ring-primary/40"
+                    : "bg-muted text-xs font-medium text-muted-foreground"
+                }
+              >
                 {getInitials(name) || <User className="size-4" />}
               </AvatarFallback>
             </Avatar>

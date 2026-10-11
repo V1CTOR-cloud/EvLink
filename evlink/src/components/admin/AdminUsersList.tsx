@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { LayoutGrid, List, Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -33,8 +33,6 @@ type AdminUsersListProps = {
   endDate: string;
   sortOrder: AdminUsersSortOrder;
 };
-
-type UsersView = "table" | "cards";
 
 type AdminUsersFiltersState = {
   query: string;
@@ -70,7 +68,6 @@ export function AdminUsersList({
 }: AdminUsersListProps) {
   const router = useRouter();
 
-  const [view, setView] = useState<UsersView>("table");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [filters, setFilters] = useState<AdminUsersFiltersState>({
@@ -244,7 +241,7 @@ export function AdminUsersList({
     <section className="space-y-5 p-4 sm:p-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Usuarios</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Usuarios</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Consulta y gestiona los perfiles registrados.
           </p>
@@ -293,34 +290,6 @@ export function AdminUsersList({
         </form>
 
         <div className="flex items-center justify-end gap-2">
-          <div
-            className="inline-flex rounded-lg border border-border bg-card p-0.5"
-            role="group"
-            aria-label="Vista de usuarios"
-          >
-            <Button
-              type="button"
-              variant={view === "table" ? "secondary" : "ghost"}
-              size="icon-sm"
-              aria-label="Vista de tabla"
-              aria-pressed={view === "table"}
-              onClick={() => setView("table")}
-            >
-              <List className="size-4" />
-            </Button>
-
-            <Button
-              type="button"
-              variant={view === "cards" ? "secondary" : "ghost"}
-              size="icon-sm"
-              aria-label="Vista de tarjetas"
-              aria-pressed={view === "cards"}
-              onClick={() => setView("cards")}
-            >
-              <LayoutGrid className="size-4" />
-            </Button>
-          </div>
-
           <AdminUserFilters
             open={filtersOpen}
             onOpenChange={setFiltersOpen}
@@ -371,7 +340,13 @@ export function AdminUsersList({
       </div>
 
       {visibleUsers.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-8 text-center">
+        <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center">
+          <div className="mx-auto mb-4 flex size-10 items-center justify-center rounded-md bg-muted">
+            <Users
+              aria-hidden="true"
+              className="size-5 text-muted-foreground"
+            />
+          </div>
           <p className="text-sm font-medium">
             {roleCounts.all === 0 && !dateRangeInvalid
               ? "Todavía no hay usuarios."
@@ -390,20 +365,23 @@ export function AdminUsersList({
             <button
               type="button"
               onClick={clearFilters}
-              className="mt-4 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="mt-4 inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Limpiar filtros
             </button>
           )}
         </div>
-      ) : view === "table" ? (
-        <AdminUsersTable users={visibleUsers} />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleUsers.map((user) => (
-            <AdminUserCard key={user.id} user={user} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-3 md:hidden">
+            {visibleUsers.map((user) => (
+              <AdminUserCard key={user.id} user={user} />
+            ))}
+          </div>
+          <div className="hidden md:block">
+            <AdminUsersTable users={visibleUsers} />
+          </div>
+        </>
       )}
 
       {visiblePageCount > 1 && (
