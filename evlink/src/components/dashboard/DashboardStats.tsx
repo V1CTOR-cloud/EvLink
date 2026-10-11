@@ -1,6 +1,7 @@
 import { Euro, MapPin, Plug, Zap } from "lucide-react";
 
 import { StatAreaChart } from "@/components/dashboard/StatAreaChart";
+import { StatBarChart } from "@/components/dashboard/StatBarChart";
 import type { DashboardStats as DashboardStatsType } from "@/types";
 
 type DashboardStatsProps = {
@@ -11,16 +12,17 @@ const statsConfig = [
   {
     key: "availableStations",
     label: "Estaciones",
-    caption: "disponibles ahora",
     icon: MapPin,
+    kind: "ratio",
     decimals: 0,
     suffix: "",
   },
   {
     key: "activeSessionsCount",
     label: "Sesiones activas",
-    caption: "en curso",
     icon: Plug,
+    kind: "bar",
+    series: "sessions",
     decimals: 0,
     suffix: "",
   },
@@ -28,6 +30,7 @@ const statsConfig = [
     key: "totalEnergy",
     label: "Energía consumida",
     icon: Zap,
+    kind: "area",
     series: "energy",
     decimals: 1,
     suffix: " kWh",
@@ -36,6 +39,7 @@ const statsConfig = [
     key: "totalSpent",
     label: "Gasto total",
     icon: Euro,
+    kind: "area",
     series: "spent",
     decimals: 2,
     suffix: " €",
@@ -43,6 +47,11 @@ const statsConfig = [
 ] as const;
 
 export function DashboardStats({ stats }: DashboardStatsProps) {
+  const stationsRatio =
+    stats.totalStations > 0
+      ? Math.round((stats.availableStations / stats.totalStations) * 100)
+      : 0;
+
   return (
     <section className="mt-6">
       <div className="mb-3">
@@ -54,11 +63,6 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
         {statsConfig.map((item) => {
           const Icon = item.icon;
           const value = stats[item.key];
-          const hasSeries = "series" in item;
-
-          const weekTotal = hasSeries
-            ? stats.history.reduce((sum, point) => sum + point[item.series], 0)
-            : 0;
 
           return (
             <div
@@ -84,7 +88,51 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
                 </div>
               </div>
 
-              {hasSeries ? (
+              {item.kind === "ratio" && (
+                <div>
+                  <div className="flex h-16 items-end">
+                    <div
+                      role="img"
+                      aria-label={`${stats.availableStations} de ${stats.totalStations} estaciones con conectores libres`}
+                      className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                    >
+                      <div
+                        className="bar-grow h-full rounded-full bg-primary"
+                        style={{ width: `${stationsRatio}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {stats.availableStations} de {stats.totalStations}
+                    </span>{" "}
+                    con conectores libres
+                  </p>
+                </div>
+              )}
+
+              {item.kind === "bar" && (
+                <div>
+                  <StatBarChart
+                    data={stats.history}
+                    dataKey={item.series}
+                    label="Sesiones completadas"
+                  />
+
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Completadas en 7 días:{" "}
+                    <span className="font-medium text-foreground">
+                      {stats.history.reduce(
+                        (sum, point) => sum + point.sessions,
+                        0,
+                      )}
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {item.kind === "area" && (
                 <div>
                   <StatAreaChart
                     data={stats.history}
@@ -97,15 +145,13 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     Últimos 7 días:{" "}
                     <span className="font-medium text-foreground">
-                      {weekTotal.toFixed(item.decimals)}
+                      {stats.history
+                        .reduce((sum, point) => sum + point[item.series], 0)
+                        .toFixed(item.decimals)}
                       {item.suffix}
                     </span>
                   </p>
                 </div>
-              ) : (
-                <p className="text-[11px] text-muted-foreground">
-                  {item.caption}
-                </p>
               )}
             </div>
           );

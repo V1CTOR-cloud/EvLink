@@ -17,11 +17,15 @@ export async function requireAdmin() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, status")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profileError || profile?.role !== "admin") {
+  if (
+    profileError ||
+    profile?.role !== "admin" ||
+    profile?.status !== "active"
+  ) {
     redirect("/");
   }
 

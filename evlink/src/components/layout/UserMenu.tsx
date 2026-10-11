@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
+import Link from "next/link";
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -78,6 +79,13 @@ export function UserMenu() {
         </div>
 
         <div className="my-1 h-px bg-border" />
+        <DropdownMenuItem
+          render={<Link href="/profile" />}
+          className="cursor-pointer"
+        >
+          <User className="size-4" />
+          <span>Mi perfil</span>
+        </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="size-4" />
