@@ -1,13 +1,12 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { List, Map as MapIcon, RotateCcw, Search } from "lucide-react";
+import { List, Map as MapIcon, Plus, RotateCcw, Search } from "lucide-react";
 
 import { AdminStationCard } from "@/components/admin/AdminStationCard";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StationCard } from "@/components/stations/StationCard";
 import {
@@ -18,6 +17,7 @@ import {
 import { connectorTypeLabels } from "@/lib/session-utils";
 import type { ChargingStationWithConnectors, Connector } from "@/types";
 import { StationTable } from "./StationsTable";
+import Link from "next/link";
 
 const StationsMap = dynamic(
   () =>
@@ -27,7 +27,13 @@ const StationsMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-150 w-full animate-pulse rounded-2xl border bg-muted/30" />
+      <div
+        role="status"
+        aria-label="Cargando mapa de estaciones"
+        className="h-150 w-full animate-pulse rounded-2xl border bg-muted/30"
+      >
+        <span className="sr-only">Cargando mapa de estaciones...</span>
+      </div>
     ),
   },
 );
@@ -127,8 +133,7 @@ export function StationsExplorer({
     () =>
       stations.flatMap((station) =>
         station.connectors.filter(
-          (connector) =>
-            mode === "admin" || connector.status === "available",
+          (connector) => mode === "admin" || connector.status === "available",
         ),
       ),
     [mode, stations],
@@ -142,9 +147,7 @@ export function StationsExplorer({
     });
 
     return [...types].sort((left, right) =>
-      connectorTypeLabels[left].localeCompare(
-        connectorTypeLabels[right],
-      ),
+      connectorTypeLabels[left].localeCompare(connectorTypeLabels[right]),
     );
   }, [filterableConnectors]);
 
@@ -185,9 +188,7 @@ export function StationsExplorer({
 
     return stations.filter((station) => {
       const searchableText = normalizeSearchText(
-        [station.name, station.address, station.city]
-          .filter(Boolean)
-          .join(" "),
+        [station.name, station.address, station.city].filter(Boolean).join(" "),
       );
 
       if (!searchableText.includes(normalizedSearch)) {
@@ -345,6 +346,21 @@ export function StationsExplorer({
               canClear={hasActiveFilters}
               onClear={clearFilters}
             />
+
+            {mode === "admin" && (
+              <Link
+                href="/admin/stations/new"
+                className={buttonVariants({
+                  variant: "default",
+                  size: "lg",
+                  className:
+                    "h-9 shrink-0 gap-2 rounded-lg px-3 font-medium shadow-none",
+                })}
+              >
+                <Plus className="size-4" strokeWidth={2} />
+                <span>Añadir estación</span>
+              </Link>
+            )}
 
             <div
               className="inline-flex shrink-0 rounded-lg border border-border bg-card p-0.5"

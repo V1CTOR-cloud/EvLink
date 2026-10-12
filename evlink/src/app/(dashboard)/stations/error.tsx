@@ -11,11 +11,11 @@ export default function Error({ reset }: ErrorProps) {
   return (
     <section className="space-y-4 p-6">
       <h1 className="text-2xl font-semibold">
-        No se pudieron cargar las estaciones
+        No se pudo cargar esta página
       </h1>
 
       <p className="text-muted-foreground">
-        Ha ocurrido un error al obtener las estaciones.
+        Ha ocurrido un error al cargar el contenido solicitado.
       </p>
 
       <Button onClick={reset}>Reintentar</Button>

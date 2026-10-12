@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   const name = profileResult.data?.full_name || user.email || "Usuario";
 
   return (
-    <main className="p-6 lg:p-8">
+    <section className="p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <DashboardHeader
           name={name}
@@ -109,6 +109,6 @@ export default async function DashboardPage() {
 
         <DashboardStations stations={stats.stations} />
       </div>
-    </main>
+    </section>
   );
 }

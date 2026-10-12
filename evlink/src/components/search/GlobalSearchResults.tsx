@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   CommandEmpty,
   CommandGroup,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command";
 

@@ -319,14 +319,6 @@ export function AdminSessionsList({
     useState<AdminSessionStatusFilter>(status);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  useEffect(() => {
-    setQuery(search);
-  }, [search]);
-
-  useEffect(() => {
-    setSelectedStatus(status);
-  }, [status]);
-
   const createHref = useCallback(
     (overrides: SessionHrefOptions = {}) => {
       const next = {

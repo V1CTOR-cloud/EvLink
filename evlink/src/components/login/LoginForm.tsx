@@ -3,7 +3,6 @@
 import type { ComponentProps } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
@@ -27,7 +26,7 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onBlur",
@@ -37,25 +36,10 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
     },
   });
 
-  const handleValidationError = (
-    errors: Record<
-      string,
-      {
-        message?: string;
-      }
-    >,
-  ) => {
-    const firstError = Object.values(errors)[0];
-
-    if (firstError?.message) {
-      toast.error(firstError.message);
-    }
-  };
-
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
-      onSubmit={handleSubmit(onSubmit, handleValidationError)}
+      onSubmit={handleSubmit(onSubmit)}
       {...props}
     >
       <FieldGroup>
@@ -77,8 +61,15 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
             type="email"
             placeholder="tu@email.com"
             autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "email-error" : undefined}
             {...register("email")}
           />
+          {errors.email && (
+            <p id="email-error" role="alert" className="text-xs text-destructive">
+              {errors.email.message}
+            </p>
+          )}
         </Field>
 
         <Field>
@@ -89,8 +80,19 @@ export function LoginForm({ className, onSubmit, ...props }: LoginFormProps) {
             type="password"
             placeholder="••••••••"
             autoComplete="current-password"
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "password-error" : undefined}
             {...register("password")}
           />
+          {errors.password && (
+            <p
+              id="password-error"
+              role="alert"
+              className="text-xs text-destructive"
+            >
+              {errors.password.message}
+            </p>
+          )}
         </Field>
 
         <Field>

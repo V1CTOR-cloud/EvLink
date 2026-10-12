@@ -21,7 +21,7 @@ import type { SearchResult } from "@/types";
 import { GlobalSearchTrigger } from "./GlobalSearchTrigger";
 import { GlobalSearchResults } from "./GlobalSearchResults";
 
-const publicSearchablePaths = ["/", "/stations", "/sessions"];
+const publicSearchablePaths = ["/", "/stations", "/sessions", "/profile"];
 
 type SearchableRoute = (typeof routes)[number] & {
   section: "general" | "admin";

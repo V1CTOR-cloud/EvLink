@@ -1,7 +1,6 @@
 import { TriangleAlert } from "lucide-react";
 
 import { AdminIncidentList } from "@/components/admin/incidents/AdminIncidentList";
-import { cn } from "@/lib/utils";
 import type { AdminDashboardMetrics } from "@/services/admin-dashboard";
 
 import { AdminDashboardHeader } from "./AdminDashboardHeader";
@@ -47,7 +46,7 @@ export function AdminDashboard({ metrics }: AdminDashboardProps) {
           };
 
   return (
-    <main className="min-h-screen p-4 sm:p-6 lg:p-8">
+    <section className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-8">
         <AdminDashboardHeader
           health={networkHealth}
@@ -90,6 +89,6 @@ export function AdminDashboard({ metrics }: AdminDashboardProps) {
 
         <AdminDashboardAnalytics metrics={metrics} />
       </div>
-    </main>
+    </section>
   );
 }

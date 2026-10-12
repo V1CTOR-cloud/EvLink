@@ -222,10 +222,10 @@ function AdminPaymentCard({
 
       <Link
         href={`/admin/payments/${payment.id}`}
-        aria-label={`Abrir la sesión asociada al pago de ${formatAmount(payment.amount, payment.currency)}`}
+        aria-label={`Ver detalle del pago de ${formatAmount(payment.amount, payment.currency)}`}
         className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
       >
-        <span className="sr-only">Abrir sesión asociada</span>
+        <span className="sr-only">Ver detalle del pago</span>
       </Link>
     </article>
   );
@@ -334,14 +334,18 @@ export function AdminPaymentsList({
   const [selectedStatus, setSelectedStatus] =
     useState<AdminPaymentStatusFilter>(status);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [previousSearch, setPreviousSearch] = useState(search);
+  const [previousStatus, setPreviousStatus] = useState(status);
 
-  useEffect(() => {
+  if (search !== previousSearch) {
+    setPreviousSearch(search);
     setQuery(search);
-  }, [search]);
+  }
 
-  useEffect(() => {
+  if (status !== previousStatus) {
+    setPreviousStatus(status);
     setSelectedStatus(status);
-  }, [status]);
+  }
 
   const createHref = useCallback(
     (overrides: PaymentHrefOptions = {}) => {
@@ -568,11 +572,10 @@ export function AdminPaymentsList({
                         <ArrowUpRight className="pointer-events-none ml-auto size-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
                         <Link
                           href={`/admin/payments/${payment.id}`}
-                          tabIndex={-1}
-                          aria-hidden="true"
-                          className="absolute inset-0 focus-visible:outline-none"
+                          aria-label={`Ver detalle del pago de ${formatAmount(payment.amount, payment.currency)}`}
+                          className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                         >
-                          <span className="sr-only">Abrir sesión asociada</span>
+                          <span className="sr-only">Ver detalle del pago</span>
                         </Link>
                       </td>
                     </tr>

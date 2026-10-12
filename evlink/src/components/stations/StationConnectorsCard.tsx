@@ -1,6 +1,7 @@
 "use client";
 
 import { PlugZap, Zap } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -72,6 +73,17 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
       </div>
 
       <div className="border-t border-border p-5">
+        {!user && availableConnectors.length > 0 && (
+          <p className="mb-4 rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+            Inicia sesión para seleccionar un conector y comenzar una carga.{" "}
+            <Link
+              href="/login"
+              className="font-medium text-primary underline underline-offset-4"
+            >
+              Iniciar sesión
+            </Link>
+          </p>
+        )}
         {station.connectors.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Esta estación no tiene conectores.

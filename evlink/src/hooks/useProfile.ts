@@ -10,6 +10,7 @@ export function useProfile(userId?: string) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(Boolean(userId));
   const [error, setError] = useState<Error | null>(null);
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     if (!userId) {
@@ -48,7 +49,7 @@ export function useProfile(userId?: string) {
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, reloadCount]);
 
   const update = async (fullName: string) => {
     if (!userId) {
@@ -69,5 +70,6 @@ export function useProfile(userId?: string) {
     loading,
     error,
     update,
+    retry: () => setReloadCount((count) => count + 1),
   };
 }

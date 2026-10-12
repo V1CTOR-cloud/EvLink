@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 
 import { formatDate } from "@/lib/format-date";
+import { sessionStatusLabels } from "@/lib/session-utils";
 import type {
   AdminPayment,
   AdminPaymentStatus,
@@ -215,7 +216,9 @@ export function AdminPaymentDetail({ payment }: AdminPaymentDetailProps) {
               </DetailField>
 
               <DetailField label="Estado de la sesión" className="border-b">
-                {payment.session.status}
+                {Object.entries(sessionStatusLabels).find(
+                  ([status]) => status === payment.session.status,
+                )?.[1] ?? payment.session.status}
               </DetailField>
 
               <DetailField label="ID de la sesión" className="sm:col-span-2">
