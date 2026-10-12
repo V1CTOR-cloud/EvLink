@@ -50,6 +50,8 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
       toast.error(
         error instanceof Error ? error.message : "No se pudo iniciar la carga",
       );
+
+      router.refresh();
     }
   };
 
@@ -178,9 +180,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                 <button
                   key={connector.id}
                   type="button"
-                  onClick={() =>
-                    handleStartCharging(connector.id)
-                  }
+                  onClick={() => handleStartCharging(connector.id)}
                   disabled={!user || loading}
                   className="rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/2 disabled:cursor-not-allowed disabled:opacity-50"
                 >

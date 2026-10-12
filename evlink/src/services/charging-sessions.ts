@@ -5,6 +5,15 @@ import type {
   ChargingSessionDetail,
 } from "@/types";
 
+export class ChargingSessionError extends Error {
+  constructor(
+    public readonly code: "CONNECTOR_UNAVAILABLE" | "START_FAILED",
+  ) {
+    super(code);
+    this.name = "ChargingSessionError";
+  }
+}
+
 export async function getChargingSessions(
   supabase: SupabaseClient,
   userId: string,
@@ -44,18 +53,30 @@ export async function createChargingSession(
   });
 
   if (error) {
-    if (error.code === "23505") {
-      throw new Error(
-        "Este conector ya tiene una sesión de carga activa.",
-      );
+    console.error("[createChargingSession] RPC start_charging:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+
+    if (
+      error.code === "P0001" &&
+      error.message === "El conector no está disponible"
+    ) {
+      throw new ChargingSessionError("CONNECTOR_UNAVAILABLE");
     }
 
-    throw new Error(
-      "No se pudo iniciar la sesión de carga.",
-    );
+    throw new ChargingSessionError("START_FAILED");
   }
 
-  const sessionId = data.id;
+
+
+  if (!data?.id) {
+    throw new Error(
+      "La operación no devolvió el identificador de la sesión.",
+    );
+  }
 
   const { data: session, error: sessionError } = await supabase
     .from("charging_sessions")
@@ -73,11 +94,18 @@ export async function createChargingSession(
         )
       )
     `)
-    .eq("id", sessionId)
+    .eq("id", data.id)
     .single();
 
   if (sessionError) {
-    throw sessionError;
+    console.error(
+      "Error al recuperar la sesión creada:",
+      sessionError,
+    );
+
+    throw new Error(
+      "La sesión se ha iniciado, pero no se pudieron recuperar sus datos.",
+    );
   }
 
   return session;

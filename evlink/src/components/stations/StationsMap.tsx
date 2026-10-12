@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as maplibregl from "maplibre-gl";
+import { maplibregl } from "@/lib/maplibre";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
-maplibregl.setWorkerUrl(
-  new URL(
-    "maplibre-gl/dist/maplibre-gl-worker.mjs",
-    import.meta.url,
-  ).toString(),
-);
 import type { ChargingStationWithConnectors } from "@/types";
 
 type StationsMapProps = {
@@ -111,11 +105,6 @@ export function StationsMap({
         `Seleccionar estación ${station.name}`,
       );
       element.setAttribute("aria-pressed", "false");
-      element.dataset.stationId = station.id;
-      element.setAttribute(
-        "aria-label",
-        `Seleccionar estación ${station.name}`,
-      );
 
       element.addEventListener("click", () => {
         onSelectRef.current(station.id);

@@ -4,7 +4,7 @@ import {
   createChargingStation,
   deleteChargingStation,
   updateChargingStation,
-} from "@/services/charging-station-actions";
+} from "@/services/actions/charging-station-actions";
 
 const { getChargingStationSessionCount, revalidatePath, requireAdmin } =
   vi.hoisted(() => ({

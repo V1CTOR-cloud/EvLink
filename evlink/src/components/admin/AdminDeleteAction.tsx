@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { getInitials } from "@/lib/utils";
-import { deleteAdminUser } from "@/services/actions";
+import { deleteAdminUser } from "@/services/actions/actions";
 import type { AdminUser } from "@/services/admin-users";
 
 type AdminUserDeleteTarget = Pick<

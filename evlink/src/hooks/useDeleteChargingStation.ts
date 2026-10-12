@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { deleteChargingStation } from "@/services/charging-station-actions";
+import { deleteChargingStation } from "@/services/actions/charging-station-actions";
 
 export function useDeleteChargingStation(stationId: string) {
   const router = useRouter();

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   updateAdminUserProfile,
   type AdminUserActionState,
-} from "../../../../services/actions";
+} from "../../../../services/actions/actions";
 
 type UserProfileFormProps = {
   userId: string;

@@ -1,7 +1,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { updateAdminUserProfile } from "@/services/actions";
+import { updateAdminUserProfile } from "@/services/actions/actions";
 
 const {
   eq,

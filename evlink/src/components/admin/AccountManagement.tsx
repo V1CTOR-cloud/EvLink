@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ShieldCheck, ShieldOff, TriangleAlert, User } from "lucide-react";
 
-import { updateAdminUserRole, updateAdminUserStatus } from "@/services/actions";
+import { updateAdminUserRole, updateAdminUserStatus } from "@/services/actions/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

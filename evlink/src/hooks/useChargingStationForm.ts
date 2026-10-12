@@ -8,7 +8,7 @@ import { chargingStationSchema } from "@/schemas/charging-station";
 import {
   createChargingStation,
   updateChargingStation,
-} from "@/services/charging-station-actions";
+} from "@/services/actions/charging-station-actions";
 import type { ChargingStation } from "@/types";
 
 export type StationFormField =
