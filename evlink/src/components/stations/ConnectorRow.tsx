@@ -12,6 +12,7 @@ import type { Connector } from "@/types";
 
 type ConnectorRowProps = {
   connector: Connector;
+  canStartCharging?: boolean;
 };
 
 function getStatusPill(status: Connector["status"]) {
@@ -32,7 +33,10 @@ function getStatusPill(status: Connector["status"]) {
   };
 }
 
-export function ConnectorRow({ connector }: ConnectorRowProps) {
+export function ConnectorRow({
+  connector,
+  canStartCharging = true,
+}: ConnectorRowProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { startCharging, loading } = useStartCharging();
@@ -107,14 +111,16 @@ export function ConnectorRow({ connector }: ConnectorRowProps) {
   );
 
   // Conector no disponible: información sin interacción (no es un botón).
-  if (!isAvailable) {
+  if (!isAvailable || !canStartCharging) {
     return (
       <div className="flex items-center gap-3 px-3 py-2.5">
         {details}
 
-        <p className="hidden shrink-0 text-xs text-muted-foreground sm:block">
-          No disponible ahora
-        </p>
+        {!isAvailable && (
+          <p className="hidden shrink-0 text-xs text-muted-foreground sm:block">
+            No disponible ahora
+          </p>
+        )}
       </div>
     );
   }

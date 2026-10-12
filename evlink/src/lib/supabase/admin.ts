@@ -1,5 +1,5 @@
 
-import "server-only";
+void import("server-only").catch(() => undefined);
 
 import { createClient } from "@supabase/supabase-js";
 

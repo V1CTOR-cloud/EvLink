@@ -49,7 +49,7 @@ export async function listAdminUsers(
 
   let usersQuery = supabase
     .from("profiles")
-    .select("id, full_name, role, status, created_at, updated_at", {
+    .select("id, full_name, role, created_at, updated_at", {
       count: "exact",
     });
 
@@ -110,8 +110,38 @@ export async function listAdminUsers(
     throw new Error("Supabase no devolvió el listado de usuarios.");
   }
 
+  const userIds = data.map((user) => user.id);
+  const statusById: Partial<Record<string, Profile["status"]>> = {};
+
+  if (userIds.length > 0) {
+    for (const userId of userIds) {
+      const statusResult = await supabase
+        .from("profiles")
+        .select("id, status")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (!statusResult) {
+        continue;
+      }
+
+      const { data: statusRow, error: statusError } = statusResult;
+
+      if (statusError) {
+        throw statusError;
+      }
+
+      if (statusRow) {
+        statusById[userId] = statusRow.status;
+      }
+    }
+  }
+
   return {
-    users: data,
+    users: data.map((user) => {
+      const status = statusById[user.id];
+      return status === undefined ? user : { ...user, status };
+    }) as AdminUser[],
     count: count ?? 0,
     roleCounts: Object.fromEntries(roleCountEntries) as AdminUsersPage["roleCounts"],
   };

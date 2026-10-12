@@ -24,6 +24,7 @@ import type { ChargingStationWithConnectors, Connector } from "@/types";
 
 type StationTableProps = {
   stations: ChargingStationWithConnectors[];
+  mode?: "user" | "admin";
 };
 
 const COLUMN_COUNT = 7;
@@ -44,7 +45,10 @@ const availabilityIcons: Record<StationAvailabilityKey, LucideIcon> = {
 };
 
 // Libres primero, después ocupados y por último el resto.
-const connectorOrder: Record<string, number> = { available: 0, occupied: 1 };
+const connectorOrder: Record<string, number> = {
+  available: 0,
+  occupied: 1,
+};
 
 function sortConnectors(connectors: Connector[]) {
   return [...connectors].sort(
@@ -57,7 +61,9 @@ function getStationSummary(station: ChargingStationWithConnectors) {
     getStationAvailability(station);
 
   const types = [
-    ...new Set(availableConnectors.map((connector) => connector.connector_type)),
+    ...new Set(
+      availableConnectors.map((connector) => connector.connector_type),
+    ),
   ];
 
   const powers = availableConnectors
@@ -78,8 +84,8 @@ function getStationSummary(station: ChargingStationWithConnectors) {
   };
 }
 
-export function StationTable({ stations }: StationTableProps) {
-  // Una sola estación desplegada a la vez.
+export function StationTable({ stations, mode = "user" }: StationTableProps) {
+  // Solo mantenemos una estación desplegada a la vez.
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   function toggleStation(stationId: string) {
@@ -97,19 +103,26 @@ export function StationTable({ stations }: StationTableProps) {
               <th className={cn(headerClasses, "w-10 pr-0")}>
                 <span className="sr-only">Conectores</span>
               </th>
+
               <th className={cn(headerClasses, "pl-2")}>Estación</th>
               <th className={headerClasses}>Estado</th>
+
               <th className={cn(headerClasses, "hidden sm:table-cell")}>
                 Conectores libres
               </th>
+
               <th className={cn(headerClasses, "hidden md:table-cell")}>
                 Potencia máx.
               </th>
+
               <th className={cn(headerClasses, "hidden md:table-cell")}>
                 Precio desde
               </th>
+
               <th className={cn(headerClasses, "w-12")}>
-                <span className="sr-only">Ver estación</span>
+                <span className="sr-only">
+                  {mode === "admin" ? "Gestionar estación" : "Ver estación"}
+                </span>
               </th>
             </tr>
           </thead>
@@ -122,6 +135,11 @@ export function StationTable({ stations }: StationTableProps) {
               const hasConnectors = station.connectors.length > 0;
               const isExpanded = hasConnectors && expandedId === station.id;
               const panelId = `station-connectors-${station.id}`;
+
+              const stationHref =
+                mode === "admin"
+                  ? `/admin/stations/${station.id}`
+                  : `/stations/${station.id}`;
 
               return (
                 <Fragment key={station.id}>
@@ -160,9 +178,13 @@ export function StationTable({ stations }: StationTableProps) {
                         </div>
 
                         <div className="min-w-0">
-                          {/* El after: cubre toda la fila, que lleva al detalle */}
                           <Link
-                            href={`/stations/${station.id}`}
+                            href={stationHref}
+                            aria-label={
+                              mode === "admin"
+                                ? `Gestionar estación ${station.name}`
+                                : `Ver estación ${station.name}`
+                            }
                             className="block truncate font-medium after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset"
                           >
                             {station.name}
@@ -246,7 +268,10 @@ export function StationTable({ stations }: StationTableProps) {
                           {sortConnectors(station.connectors).map(
                             (connector) => (
                               <li key={connector.id}>
-                                <ConnectorRow connector={connector} />
+                                <ConnectorRow
+                                  connector={connector}
+                                  canStartCharging={mode !== "admin"}
+                                />
                               </li>
                             ),
                           )}

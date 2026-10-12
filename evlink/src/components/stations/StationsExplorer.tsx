@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -5,6 +6,7 @@ import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { List, Map as MapIcon, RotateCcw, Search } from "lucide-react";
 
+import { AdminStationCard } from "@/components/admin/AdminStationCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StationCard } from "@/components/stations/StationCard";
@@ -13,8 +15,8 @@ import {
   type NumericRange,
   type StationFiltersState,
 } from "@/components/stations/StationFilters";
-import type { ChargingStationWithConnectors, Connector } from "@/types";
 import { connectorTypeLabels } from "@/lib/session-utils";
+import type { ChargingStationWithConnectors, Connector } from "@/types";
 import { StationTable } from "./StationsTable";
 
 const StationsMap = dynamic(
@@ -32,6 +34,7 @@ const StationsMap = dynamic(
 
 type StationsExplorerProps = {
   stations: ChargingStationWithConnectors[];
+  mode?: "user" | "admin";
 };
 
 type ViewMode = "map" | "list";
@@ -82,6 +85,7 @@ function matchesConnectorFilters(
   }
 
   const power = connector.power_kw;
+
   if (
     (filters.minPower !== null || filters.maxPower !== null) &&
     (!Number.isFinite(power) ||
@@ -92,6 +96,7 @@ function matchesConnectorFilters(
   }
 
   const price = connector.price_per_kwh;
+
   if (
     (filters.minPrice !== null || filters.maxPrice !== null) &&
     (!Number.isFinite(price) ||
@@ -104,7 +109,10 @@ function matchesConnectorFilters(
   return true;
 }
 
-export function StationsExplorer({ stations }: StationsExplorerProps) {
+export function StationsExplorer({
+  stations,
+  mode = "user",
+}: StationsExplorerProps) {
   const [selectedStationId, setSelectedStationId] = useState<string | null>(
     null,
   );
@@ -113,49 +121,51 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<StationFiltersState>(defaultFilters);
 
-  const connectorTypes = useMemo(() => {
-    const types = new Set<Connector["connector_type"]>();
-
-    stations.forEach((station) => {
-      station.connectors.forEach((connector) => {
-        if (connector.status === "available") {
-          types.add(connector.connector_type);
-        }
-      });
-    });
-
-    return [...types].sort((left, right) =>
-      connectorTypeLabels[left].localeCompare(connectorTypeLabels[right]),
-    );
-  }, [stations]);
-
-  const availableConnectors = useMemo(
+  // Los usuarios filtran por conectores disponibles.
+  // Los administradores pueden filtrar por todos los estados.
+  const filterableConnectors = useMemo(
     () =>
       stations.flatMap((station) =>
         station.connectors.filter(
-          (connector) => connector.status === "available",
+          (connector) =>
+            mode === "admin" || connector.status === "available",
         ),
       ),
-    [stations],
+    [mode, stations],
   );
+
+  const connectorTypes = useMemo(() => {
+    const types = new Set<Connector["connector_type"]>();
+
+    filterableConnectors.forEach((connector) => {
+      types.add(connector.connector_type);
+    });
+
+    return [...types].sort((left, right) =>
+      connectorTypeLabels[left].localeCompare(
+        connectorTypeLabels[right],
+      ),
+    );
+  }, [filterableConnectors]);
 
   const powerRange = useMemo(
     () =>
       getNumericRange(
-        availableConnectors.map((connector) => connector.power_kw),
+        filterableConnectors.map((connector) => connector.power_kw),
       ),
-    [availableConnectors],
+    [filterableConnectors],
   );
 
   const priceRange = useMemo(
     () =>
       getNumericRange(
-        availableConnectors.map((connector) => connector.price_per_kwh),
+        filterableConnectors.map((connector) => connector.price_per_kwh),
       ),
-    [availableConnectors],
+    [filterableConnectors],
   );
 
   const normalizedSearch = normalizeSearchText(search);
+
   const hasInvalidRange =
     (filters.minPower !== null && !Number.isFinite(filters.minPower)) ||
     (filters.maxPower !== null && !Number.isFinite(filters.maxPower)) ||
@@ -175,7 +185,9 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
 
     return stations.filter((station) => {
       const searchableText = normalizeSearchText(
-        [station.name, station.address, station.city].filter(Boolean).join(" "),
+        [station.name, station.address, station.city]
+          .filter(Boolean)
+          .join(" "),
       );
 
       if (!searchableText.includes(normalizedSearch)) {
@@ -183,6 +195,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
       }
 
       const available = hasAvailableConnector(station);
+
       if (
         (filters.availability === "available" && !available) ||
         (filters.availability === "unavailable" && available)
@@ -203,11 +216,11 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
 
       return station.connectors.some(
         (connector) =>
-          connector.status === "available" &&
+          (mode === "admin" || connector.status === "available") &&
           matchesConnectorFilters(connector, filters),
       );
     });
-  }, [filters, hasInvalidRange, normalizedSearch, stations]);
+  }, [filters, hasInvalidRange, normalizedSearch, stations, mode]);
 
   const activeFilterCount =
     Number(normalizedSearch.length > 0) +
@@ -215,45 +228,55 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
     Number(filters.connectorTypes.length > 0) +
     Number(filters.minPower !== null || filters.maxPower !== null) +
     Number(filters.minPrice !== null || filters.maxPrice !== null);
+
   const hasActiveFilters = activeFilterCount > 0;
+
+  function dismissSelectedStation() {
+    toast.dismiss("selected-station");
+    setSelectedStationId(null);
+  }
 
   function clearFilters() {
     setSearch("");
     setFilters(defaultFilters);
-    setSelectedStationId(null);
-    toast.dismiss("selected-station");
+    dismissSelectedStation();
   }
 
   function handleSearchChange(value: string) {
     setSearch(value);
-    setSelectedStationId(null);
-    toast.dismiss("selected-station");
+    dismissSelectedStation();
   }
 
   function handleFiltersChange(nextFilters: StationFiltersState) {
     setFilters(nextFilters);
-    setSelectedStationId(null);
-    toast.dismiss("selected-station");
+    dismissSelectedStation();
   }
 
   function handleSelectStation(stationId: string) {
     const station = filteredStations.find((item) => item.id === stationId);
 
-    if (!station) return;
+    if (!station) {
+      return;
+    }
 
     setSelectedStationId(stationId);
 
     toast.custom(
-      (toastId) => (
-        <StationCard
-          station={station}
-          variant="compact"
-          onClose={() => {
+      (toastId) => {
+        const cardProps = {
+          station,
+          onClose: () => {
             toast.dismiss(toastId);
             setSelectedStationId(null);
-          }}
-        />
-      ),
+          },
+        };
+
+        return mode === "admin" ? (
+          <AdminStationCard {...cardProps} />
+        ) : (
+          <StationCard {...cardProps} variant="compact" />
+        );
+      },
       {
         id: "selected-station",
         duration: Infinity,
@@ -264,12 +287,11 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
     );
   }
 
-  function handleViewChange(mode: ViewMode) {
-    setViewMode(mode);
+  function handleViewChange(nextViewMode: ViewMode) {
+    setViewMode(nextViewMode);
 
-    if (mode === "list") {
-      toast.dismiss("selected-station");
-      setSelectedStationId(null);
+    if (nextViewMode === "list") {
+      dismissSelectedStation();
     }
   }
 
@@ -283,7 +305,10 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
     <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Estaciones</h1>
+          <h2 className="text-2xl font-semibold">
+            {mode === "admin" ? "Explorar estaciones" : "Estaciones"}
+          </h2>
+
           <p className="mt-1 text-sm text-muted-foreground">
             {filteredStations.length}{" "}
             {filteredStations.length === 1 ? "estación" : "estaciones"}
@@ -295,7 +320,9 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
             <span className="sr-only">
               Buscar estación por nombre, dirección o ciudad
             </span>
+
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
             <Input
               type="search"
               value={search}
@@ -336,6 +363,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
                 <MapIcon className="size-4" />
                 <span className="sr-only sm:not-sr-only">Mapa</span>
               </Button>
+
               <Button
                 type="button"
                 variant={viewMode === "list" ? "secondary" : "ghost"}
@@ -389,7 +417,7 @@ export function StationsExplorer({ stations }: StationsExplorerProps) {
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <StationTable stations={filteredStations} />
+          <StationTable stations={filteredStations} mode={mode} />
         </div>
       )}
     </div>

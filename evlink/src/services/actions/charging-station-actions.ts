@@ -59,14 +59,13 @@ function getWriteErrorMessage(error: { code?: string }) {
 export async function createChargingStation(
   input: unknown,
 ): Promise<ChargingStationActionResult> {
-  // Autorización primero: un usuario sin permisos no debe llegar a validar nada.
-  const { supabase } = await requireAdmin();
-
   const validation = validateInput(input);
 
   if ("error" in validation) {
     return validation;
   }
+
+  const { supabase } = await requireAdmin();
 
   try {
     const { data, error } = await supabase
@@ -104,8 +103,6 @@ export async function updateChargingStation(
   stationId: string,
   input: unknown,
 ): Promise<ChargingStationActionResult> {
-  const { supabase } = await requireAdmin();
-
   const parsedStationId = stationIdSchema.safeParse(
     typeof stationId === "string" ? stationId.trim() : stationId,
   );
@@ -119,6 +116,8 @@ export async function updateChargingStation(
   if ("error" in validation) {
     return validation;
   }
+
+  const { supabase } = await requireAdmin();
 
   try {
     const { data, error } = await supabase
