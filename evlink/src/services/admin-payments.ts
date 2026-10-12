@@ -1,3 +1,4 @@
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type AdminPaymentStatus =
@@ -64,8 +65,71 @@ type AdminPaymentQueryRow = {
     }>;
 };
 
+const ADMIN_PAYMENT_SELECT = `
+    id,
+    session_id,
+    user_id,
+    amount,
+    currency,
+    status,
+    created_at,
+    updated_at,
+    user:profiles!inner (
+        id,
+        full_name
+    ),
+    session:charging_sessions!inner (
+        id,
+        status,
+        created_at,
+        connector:connectors!inner (
+            station:charging_stations!inner (
+                id,
+                name,
+                city
+            )
+        )
+    )
+`;
+
 function firstRelation<T>(relation: Relation<T> | undefined): T | null {
     return Array.isArray(relation) ? relation[0] ?? null : relation ?? null;
+}
+
+function mapAdminPayment(row: AdminPaymentQueryRow): AdminPayment | null {
+    const user = firstRelation(row.user);
+    const session = firstRelation(row.session);
+    const connector = firstRelation(session?.connector);
+    const station = firstRelation(connector?.station);
+
+    if (!user || !session || !station) {
+        return null;
+    }
+
+    return {
+        id: row.id,
+        session_id: row.session_id,
+        user_id: row.user_id,
+        amount: Number(row.amount),
+        currency: row.currency,
+        status: row.status,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        user: {
+            id: user.id,
+            full_name: user.full_name,
+        },
+        session: {
+            id: session.id,
+            status: session.status,
+            created_at: session.created_at,
+            station: {
+                id: station.id,
+                name: station.name,
+                city: station.city,
+            },
+        },
+    };
 }
 
 export async function listAdminPayments(
@@ -84,35 +148,7 @@ export async function listAdminPayments(
 
     let query = supabase
         .from("payments")
-        .select(
-            `
-        id,
-        session_id,
-        user_id,
-        amount,
-        currency,
-        status,
-        created_at,
-        updated_at,
-        user:profiles!inner (
-          id,
-          full_name
-        ),
-        session:charging_sessions!inner (
-          id,
-          status,
-          created_at,
-          connector:connectors!inner (
-            station:charging_stations!inner (
-              id,
-              name,
-              city
-            )
-          )
-        )
-      `,
-            { count: "exact" },
-        );
+        .select(ADMIN_PAYMENT_SELECT, { count: "exact" });
 
     if (options.status !== "all") {
         query = query.eq("status", options.status);
@@ -132,43 +168,9 @@ export async function listAdminPayments(
 
     const rows = (data ?? []) as unknown as AdminPaymentQueryRow[];
 
-    const payments: AdminPayment[] = rows.flatMap((row) => {
-        const user = firstRelation(row.user);
-        const session = firstRelation(row.session);
-        const connector = firstRelation(session?.connector);
-        const station = firstRelation(connector?.station);
-
-        if (!user || !session || !station) {
-            return [];
-        }
-
-        return [
-            {
-                id: row.id,
-                session_id: row.session_id,
-                user_id: row.user_id,
-                amount: Number(row.amount),
-                currency: row.currency,
-                status: row.status,
-                created_at: row.created_at,
-                updated_at: row.updated_at,
-                user: {
-                    id: user.id,
-                    full_name: user.full_name,
-                },
-                session: {
-                    id: session.id,
-                    status: session.status,
-                    created_at: session.created_at,
-                    station: {
-                        id: station.id,
-                        name: station.name,
-                        city: station.city,
-                    },
-                },
-            },
-        ];
-    });
+    const payments = rows
+        .map(mapAdminPayment)
+        .filter((payment): payment is AdminPayment => payment !== null);
 
     return {
         payments,
@@ -176,4 +178,25 @@ export async function listAdminPayments(
         page,
         pageSize,
     };
+}
+
+export async function getAdminPaymentById(
+    supabase: SupabaseClient,
+    paymentId: string,
+): Promise<AdminPayment | null> {
+    const { data, error } = await supabase
+        .from("payments")
+        .select(ADMIN_PAYMENT_SELECT)
+        .eq("id", paymentId)
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    if (!data) {
+        return null;
+    }
+
+    return mapAdminPayment(data as unknown as AdminPaymentQueryRow);
 }
