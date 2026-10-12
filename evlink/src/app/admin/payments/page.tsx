@@ -66,23 +66,13 @@ export default async function AdminPaymentsPage({
   }
 
   return (
-    <section className="space-y-4 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Pagos</h1>
-
-        <p className="mt-1 text-sm text-muted-foreground">
-          Consulta y supervisa los pagos de las sesiones de carga.
-        </p>
-      </div>
-
-      <AdminPaymentsList
-        payments={result.payments}
-        count={result.count}
-        page={page}
-        pageCount={pageCount}
-        search={search}
-        status={status}
-      />
-    </section>
+    <AdminPaymentsList
+      payments={result.payments}
+      count={result.count}
+      page={page}
+      pageCount={pageCount}
+      search={search}
+      status={status}
+    />
   );
 }

@@ -1,6 +1,4 @@
-
 import { redirect } from "next/navigation";
-
 
 import { requireAdmin } from "@/lib/auth/require-admin";
 import {
@@ -10,9 +8,7 @@ import {
 import { AdminSessionsList } from "@/components/admin/AdminSessionsList";
 
 type AdminSessionsPageProps = {
-  searchParams: Promise<
-    Record<string, string | string[] | undefined>
-  >;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const SESSION_STATUSES: AdminSessionStatusFilter[] = [
@@ -24,18 +20,14 @@ const SESSION_STATUSES: AdminSessionStatusFilter[] = [
   "failed",
 ];
 
-function getSingleParam(
-  value: string | string[] | undefined,
-): string {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+function getSingleParam(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
 }
 
 function getValidPage(value: string): number {
   const parsed = Number(value);
 
-  return Number.isSafeInteger(parsed) && parsed > 0
-    ? parsed
-    : 1;
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
 }
 
 export default async function AdminSessionsPage({
@@ -46,10 +38,11 @@ export default async function AdminSessionsPage({
 
   const search = getSingleParam(params.q).trim().slice(0, 100);
   const rawStatus = getSingleParam(params.status);
-  const status: AdminSessionStatusFilter =
-    SESSION_STATUSES.includes(rawStatus as AdminSessionStatusFilter)
-      ? (rawStatus as AdminSessionStatusFilter)
-      : "all";
+  const status: AdminSessionStatusFilter = SESSION_STATUSES.includes(
+    rawStatus as AdminSessionStatusFilter,
+  )
+    ? (rawStatus as AdminSessionStatusFilter)
+    : "all";
   const page = getValidPage(getSingleParam(params.page));
 
   const result = await listAdminSessions(supabase, {
@@ -58,10 +51,7 @@ export default async function AdminSessionsPage({
     status,
   });
 
-  const pageCount = Math.max(
-    1,
-    Math.ceil(result.count / result.pageSize),
-  );
+  const pageCount = Math.max(1, Math.ceil(result.count / result.pageSize));
 
   if (page > pageCount) {
     const query = new URLSearchParams();
@@ -74,25 +64,14 @@ export default async function AdminSessionsPage({
   }
 
   return (
-    <section className="space-y-4 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Sesiones
-        </h1>
-
-        <p className="mt-1 text-sm text-muted-foreground">
-          Consulta y supervisa las sesiones de carga de todos los usuarios.
-        </p>
-      </div>
-
-      <AdminSessionsList
-        sessions={result.sessions}
-        count={result.count}
-        page={page}
-        pageCount={pageCount}
-        search={search}
-        status={status}
-      />
-    </section>
+    <AdminSessionsList
+      key={`${search}-${status}-${page}`}
+      sessions={result.sessions}
+      count={result.count}
+      page={page}
+      pageCount={pageCount}
+      search={search}
+      status={status}
+    />
   );
 }
