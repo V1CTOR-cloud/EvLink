@@ -6,7 +6,7 @@ export async function getProfile(userId: string): Promise<Profile> {
 
     const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, role")
+        .select("id, full_name, role, status")
         .eq("id", userId)
         .single();
 
@@ -29,7 +29,7 @@ export async function updateProfile(
       full_name: data.full_name,
     })
     .eq("id", userId)
-    .select("id, full_name, role")
+    .select("id, full_name, role, status")
     .single();
 
   if (error) {

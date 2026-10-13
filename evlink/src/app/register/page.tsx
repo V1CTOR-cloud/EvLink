@@ -1,6 +1,6 @@
 "use client";
 
-import { BatteryCharging, MapPin, Zap } from "lucide-react";
+import { Plug, MapPin, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -115,7 +115,7 @@ export default function RegisterPage() {
                     <div className="absolute inset-2 rounded-full border border-primary/10" />
 
                     <div className="flex flex-col items-center">
-                      <BatteryCharging className="size-7 text-primary" />
+                      <Plug className="size-7 text-primary" />
 
                       <span className="mt-1 text-xl font-semibold text-white">
                         86%

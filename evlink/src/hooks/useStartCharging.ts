@@ -1,50 +1,38 @@
+
 "use client";
 
 import { useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
-import { createChargingSession } from "@/services/charging-sessions";
+import { startChargingAction } from "@/services/actions/charging-session";
 
 export function useStartCharging() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-    const [supabase] = useState(() => createClient());
+  const startCharging = async (connectorId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const startCharging = async (
-        userId: string,
-        connectorId: string,
-        pricePerKwh: number,
-    ) => {
-        try {
-            setLoading(true);
-            setError(null);
+      const result = await startChargingAction(connectorId);
 
-            const session = await createChargingSession(
-                supabase,
-                userId,
-                connectorId,
-                pricePerKwh,
-            );
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
-            return session;
-        } catch (error) {
-            const normalizedError =
-                error instanceof Error
-                    ? error
-                    : new Error("No se pudo iniciar la carga");
+      return result.session;
+    } catch (cause) {
+      const normalizedError =
+        cause instanceof Error
+          ? cause
+          : new Error("No se pudo iniciar la carga.");
 
-            setError(normalizedError);
+      setError(normalizedError);
+      throw normalizedError;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            throw normalizedError;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return {
-        startCharging,
-        loading,
-        error,
-    };
+  return { startCharging, loading, error };
 }

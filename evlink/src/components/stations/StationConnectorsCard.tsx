@@ -1,6 +1,7 @@
 "use client";
 
 import { PlugZap, Zap } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -33,14 +34,11 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
     (connector) => connector.status === "available",
   );
 
-  const handleStartCharging = async (
-    connectorId: string,
-    pricePerKwh: number,
-  ) => {
+  const handleStartCharging = async (connectorId: string) => {
     if (!user || loading) return;
 
     try {
-      const session = await startCharging(user.id, connectorId, pricePerKwh);
+      const session = await startCharging(connectorId);
 
       if (!session?.id) {
         throw new Error("La sesión se ha creado, pero no tiene un ID válido.");
@@ -53,6 +51,8 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
       toast.error(
         error instanceof Error ? error.message : "No se pudo iniciar la carga",
       );
+
+      router.refresh();
     }
   };
 
@@ -73,6 +73,17 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
       </div>
 
       <div className="border-t border-border p-5">
+        {!user && availableConnectors.length > 0 && (
+          <p className="mb-4 rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+            Inicia sesión para seleccionar un conector y comenzar una carga.{" "}
+            <Link
+              href="/login"
+              className="font-medium text-primary underline underline-offset-4"
+            >
+              Iniciar sesión
+            </Link>
+          </p>
+        )}
         {station.connectors.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Esta estación no tiene conectores.
@@ -82,6 +93,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
             {station.connectors.map((connector) => {
               const isAvailable = connector.status === "available";
               const isOccupied = connector.status === "occupied";
+              const isMaintenance = connector.status === "maintenance";
 
               const content = (
                 <>
@@ -119,7 +131,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium",
                         isAvailable
                           ? "bg-primary/10 text-primary"
-                          : isOccupied
+                          : isOccupied || isMaintenance
                             ? "bg-yellow-500/10 text-yellow-600"
                             : "bg-muted text-muted-foreground",
                       ].join(" ")}
@@ -129,7 +141,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                           "size-1.5 rounded-full",
                           isAvailable
                             ? "bg-primary"
-                            : isOccupied
+                            : isOccupied || isMaintenance
                               ? "bg-yellow-500"
                               : "bg-muted-foreground",
                         ].join(" ")}
@@ -139,7 +151,9 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                         ? "Disponible"
                         : isOccupied
                           ? "Ocupado"
-                          : "Fuera de servicio"}
+                          : isMaintenance
+                            ? "Mantenimiento"
+                            : "Fuera de servicio"}
                     </span>
                   </div>
 
@@ -178,9 +192,7 @@ export function StationConnectorsCard({ station }: StationConnectorsCardProps) {
                 <button
                   key={connector.id}
                   type="button"
-                  onClick={() =>
-                    handleStartCharging(connector.id, connector.price_per_kwh)
-                  }
+                  onClick={() => handleStartCharging(connector.id)}
                   disabled={!user || loading}
                   className="rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/2 disabled:cursor-not-allowed disabled:opacity-50"
                 >

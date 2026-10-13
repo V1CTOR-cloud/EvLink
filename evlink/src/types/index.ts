@@ -2,6 +2,7 @@ export type Profile = {
     id: string;
     full_name: string;
     role: "driver" | "admin";
+    status:  "active" | "inactive"
 };
 
 export type ChargingStation = {
@@ -23,7 +24,7 @@ export type Connector = {
     connector_type: "type_2" | "ccs2" | "chademo";
     power_kw: number;
     price_per_kwh: number;
-    status: "available" | "occupied" | "offline";
+    status: "available" | "occupied" | "offline" | "maintenance";
     created_at: string;
     updated_at: string;
 };
@@ -59,8 +60,10 @@ export type DashboardStats = {
     activeSessionsCount: number;
     totalEnergy: number;
     totalSpent: number;
+    totalStations: number;
     activeSessions: DashboardActiveSession[];
     stations: ChargingStationWithConnectors[];
+    history: DashboardSeriesPoint[];
 };
 
 export type DashboardActiveSession = {
@@ -165,3 +168,10 @@ export type CreatePaymentMethodInput = Pick<
 >;
 
 export type UpdatePaymentMethodInput = Partial<CreatePaymentMethodInput>;
+
+export type DashboardSeriesPoint = {
+  date: string;
+  energy: number;
+  spent: number;
+  sessions: number;
+};

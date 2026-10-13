@@ -2,7 +2,7 @@
 "use client";
 
 import {
-  BatteryCharging,
+  Plug,
   CalendarDays,
   MapPin,
   ArrowUpRight,
@@ -89,7 +89,7 @@ export function SessionCard({ session }: SessionCardProps) {
           {/* Connector and date */}
           <div className="mt-2.5 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
             <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
-              <BatteryCharging className="size-3.5 shrink-0" />
+              <Plug className="size-3.5 shrink-0" />
               <span className="truncate">
                 {session.connector.connector_type.toUpperCase()}
                 {" · "}

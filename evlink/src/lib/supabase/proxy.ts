@@ -36,23 +36,62 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { data } = await supabase.auth.getClaims();
-
-  const user = data?.claims?.sub;
+  const userId = data?.claims?.sub;
 
   const pathname = request.nextUrl.pathname;
 
   const publicRoutes = ["/login", "/register"];
-
   const isPublicRoute = publicRoutes.includes(pathname);
+  const isDisabledRoute = pathname === "/account-disabled";
 
-  if (!user && !isPublicRoute) {
+  if (!userId) {
+    if (!isPublicRoute && !isDisabledRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+
+      return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
+  }
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("status")
+    .eq("id", userId)
+    .maybeSingle();
+
+  // No permitir el acceso si no podemos verificar el estado.
+  if (error || !profile) {
+  if (isDisabledRoute) {
+    return supabaseResponse;
+  }
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/account-disabled";
+
+  return NextResponse.redirect(url);
+}
+
+  if (profile.status === "inactive") {
+    if (!isDisabledRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/account-disabled";
+
+      return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
+  }
+
+  if (isDisabledRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/";
 
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublicRoute) {
+  if (isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
 

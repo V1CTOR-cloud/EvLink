@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as maplibregl from "maplibre-gl";
+import { maplibregl } from "@/lib/maplibre";
 import type { Map as MapLibreMap } from "maplibre-gl";
-
-maplibregl.setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 type MiniStationMapProps = {
   latitude: number;

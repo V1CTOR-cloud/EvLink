@@ -1,9 +1,8 @@
 "use client";
 
 import type { ComponentProps } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
@@ -31,7 +30,7 @@ export function RegisterForm({
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: "onBlur",
@@ -43,18 +42,10 @@ export function RegisterForm({
     },
   });
 
-  const handleValidationError = (errors: FieldErrors<RegisterFormData>) => {
-    const firstError = Object.values(errors)[0];
-
-    if (firstError?.message) {
-      toast.error(String(firstError.message));
-    }
-  };
-
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
-      onSubmit={handleSubmit(onSubmit, handleValidationError)}
+      onSubmit={handleSubmit(onSubmit)}
       {...props}
     >
       <FieldGroup>
@@ -76,8 +67,19 @@ export function RegisterForm({
             type="text"
             placeholder="Víctor García"
             autoComplete="name"
+            aria-invalid={Boolean(errors.fullName)}
+            aria-describedby={errors.fullName ? "fullName-error" : undefined}
             {...register("fullName")}
           />
+          {errors.fullName && (
+            <p
+              id="fullName-error"
+              role="alert"
+              className="text-xs text-destructive"
+            >
+              {errors.fullName.message}
+            </p>
+          )}
         </Field>
 
         <Field>
@@ -88,8 +90,15 @@ export function RegisterForm({
             type="email"
             placeholder="tu@email.com"
             autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "email-error" : undefined}
             {...register("email")}
           />
+          {errors.email && (
+            <p id="email-error" role="alert" className="text-xs text-destructive">
+              {errors.email.message}
+            </p>
+          )}
         </Field>
 
         <Field>
@@ -100,8 +109,19 @@ export function RegisterForm({
             type="password"
             placeholder="••••••••"
             autoComplete="new-password"
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "password-error" : undefined}
             {...register("password")}
           />
+          {errors.password && (
+            <p
+              id="password-error"
+              role="alert"
+              className="text-xs text-destructive"
+            >
+              {errors.password.message}
+            </p>
+          )}
         </Field>
 
         <Field>
@@ -114,8 +134,21 @@ export function RegisterForm({
             type="password"
             placeholder="••••••••"
             autoComplete="new-password"
+            aria-invalid={Boolean(errors.confirmPassword)}
+            aria-describedby={
+              errors.confirmPassword ? "confirmPassword-error" : undefined
+            }
             {...register("confirmPassword")}
           />
+          {errors.confirmPassword && (
+            <p
+              id="confirmPassword-error"
+              role="alert"
+              className="text-xs text-destructive"
+            >
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </Field>
 
         <Field>

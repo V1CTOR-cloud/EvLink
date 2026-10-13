@@ -1,0 +1,1 @@
+export const USER_DELETION_ENABLED = false;

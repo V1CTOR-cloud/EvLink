@@ -14,6 +14,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useRouter } from "next/navigation";
+import { getInitials } from "@/lib/utils";
+import Link from "next/link";
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -33,24 +35,23 @@ export function UserMenu() {
   const email = user?.email ?? "Usuario";
   const name = profile?.full_name || email;
 
-  const initials = name
-    .split(" ")
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <button
             type="button"
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Avatar className="size-7.5">
-              <AvatarFallback className="bg-primary text-xs font-medium text-primary-foreground">
-                {initials || <User className="size-4" />}
+              <AvatarFallback
+                className={
+                  profile?.role === "admin"
+                    ? "bg-primary/15 text-xs font-medium text-foreground ring-1 ring-primary/40"
+                    : "bg-muted text-xs font-medium text-muted-foreground"
+                }
+              >
+                {getInitials(name) || <User className="size-4" />}
               </AvatarFallback>
             </Avatar>
 
@@ -70,7 +71,11 @@ export function UserMenu() {
       >
         <div className="px-3 py-2">
           <div className="flex items-center gap-1">
-            {profile?.role == "admin" ? <UserStar size={16} /> : <Car size={16} />}
+            {profile?.role == "admin" ? (
+              <UserStar size={16} />
+            ) : (
+              <Car size={16} />
+            )}
             <p className="truncate text-sm font-medium">
               {loading ? "Cargando..." : name}
             </p>
@@ -80,6 +85,13 @@ export function UserMenu() {
         </div>
 
         <div className="my-1 h-px bg-border" />
+        <DropdownMenuItem
+          render={<Link href="/profile" />}
+          className="cursor-pointer"
+        >
+          <User className="size-4" />
+          <span>Mi perfil</span>
+        </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           <LogOut className="size-4" />

@@ -32,11 +32,7 @@ export function ConnectorItem({ connector }: ConnectorItemProps) {
     }
 
     try {
-      const session = await startCharging(
-        user.id,
-        connector.id,
-        connector.price_per_kwh,
-      );
+      const session = await startCharging(connector.id);
 
       toast.success("Carga iniciada correctamente");
 

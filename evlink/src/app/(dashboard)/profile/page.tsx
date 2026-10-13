@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, ShieldCheck } from "lucide-react";
@@ -22,7 +21,7 @@ import { PaymentMethodsSection } from "@/components/profile/payment-methods/Paym
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { profile, loading, error, update } = useProfile(user?.id);
+  const { profile, loading, error, update, retry } = useProfile(user?.id);
 
   const {
     register,
@@ -56,25 +55,30 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="p-6">
+      <section className="p-6" role="status" aria-live="polite">
         <div className="mx-auto max-w-5xl">
           <p className="text-sm text-muted-foreground">
             Cargando perfil...
           </p>
         </div>
-      </main>
+      </section>
     );
   }
 
   if (error || !profile || !user) {
     return (
-      <main className="p-6">
+      <section className="p-6">
         <div className="mx-auto max-w-5xl">
           <p className="text-sm text-destructive">
             No se pudo cargar el perfil.
           </p>
+          {user && (
+            <Button className="mt-4" onClick={retry} variant="outline">
+              Reintentar
+            </Button>
+          )}
         </div>
-      </main>
+      </section>
     );
   }
 
@@ -94,7 +98,7 @@ export default function ProfilePage() {
       : "Conductor";
 
   return (
-    <main className="p-6">
+    <section className="p-6">
       <div className="mx-auto max-w-5xl space-y-10">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -216,6 +220,6 @@ export default function ProfilePage() {
 
         <PaymentMethodsSection userId={user.id} />
       </div>
-    </main>
+    </section>
   );
 }

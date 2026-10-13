@@ -13,13 +13,28 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { routes } from "@/config/routes";
+import { adminRoutes } from "@/config/admin-routes";
 
 export function AppBreadCrumb() {
   const pathname = usePathname();
+  const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
+  const allRoutes = [...routes, ...adminRoutes];
 
-  const currentRoute = routes.find((route) => route.path === pathname);
-  const currentPage = currentRoute?.label ?? "Dashboard";
+  const currentRoute =
+    allRoutes.find((route) => route.path === pathname) ??
+    [...allRoutes]
+      .filter((route) => pathname.startsWith(`${route.path}/`))
+      .sort((a, b) => b.path.length - a.path.length)[0];
+
+  const currentPage =
+    currentRoute?.label ?? (isAdminRoute ? "Administración" : "Dashboard");
+
   const CurrentIcon = currentRoute?.icon;
+
+  const homeHref = isAdminRoute ? "/admin" : "/";
+  const homeLabel = isAdminRoute
+    ? "Ir al panel de administración"
+    : "Ir al dashboard";
 
   return (
     <Breadcrumb className="min-w-0 overflow-hidden">
@@ -28,8 +43,8 @@ export function AppBreadCrumb() {
           <BreadcrumbLink
             render={
               <Link
-                href="/"
-                aria-label="Ir al dashboard"
+                href={homeHref}
+                aria-label={homeLabel}
                 className="flex cursor-pointer items-center gap-2"
               >
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary">
